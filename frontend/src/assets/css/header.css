@@ -1,0 +1,25 @@
+:root {
+  --ai-header-height: 48px;
+  --ai-header-h-padding: var(--ai-base-h-padding);
+}
+
+.header {
+  padding: 0 var(--ai-header-h-padding);
+}
+
+.nav {
+  height: var(--ai-header-height);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav__subtitle {
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--ai-color-secondary);
+}
+
+.nav__user {
+  margin-left: auto;
+}

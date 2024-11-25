@@ -1,0 +1,18 @@
+:root {
+  --ai-color-primary: #303133;
+  --ai-color-secondary: #909399;
+  --ai-bg-color-primary: white;
+  --ai-bg-color-secondary: #F5F7FA;
+  --ai-bg-color-secondary-light: #f9f9f9;
+
+  --ai-color-primary-blue: #2B88E7;
+
+  --ai-color-bg-body: var(--ai-bg-color-secondary);
+  --ai-color-bg-page: var(--ai-bg-color-primary);
+
+  --ai-border-color: #D4D7DE;
+
+  --ai-page-width: 1440px;
+  --ai-base-h-padding: 20px;
+  --ai-base-v-padding: 10px;
+}
