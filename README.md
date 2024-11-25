@@ -10,28 +10,25 @@ In general it is expected that if any of the requests fails, the client will rec
 }
 ```
 
-Authentication is done through the INFUSE auth module.
+## Authentication
+
+Authentication is done through the INFUSE auth module. Details: to be added...
 
 ## Folders
 
 ### `GET` `/api/v1/folders`
 
-Usage - Describing user folders on chats page on web UI.
+Usage - Describe current user folders on chats page on web UI.
 
 Query params:
 
 ```js
 {
-    "user_id" : String, // optional, get all by users
-    "is_deleted" : Boolean // optional, all folders by default
+  // no query parameters are implemented
 }
 ```
 
-Request with params:
-
-`GET` `/api/v1/folders?user_id=123&is_deleted=false`
-
-Response:
+Response is <b>always an array</b>, even if only one item matches the query:
 
 ```js
 [
@@ -60,16 +57,16 @@ Response codes:
 
 ### `GET` `/api/v1/folders/{id}`
 
-Usage - describing single folder
+Usage - describing single folder.
 
-Response:
+Response is a single object or an error if not found:
 
 ```js
   {
-    id: String,
-    name: String,
-    user_id: String,
-    is_deleted: Boolean,
+    "id": String,
+    "name": String,
+    "user_id": String,
+    "is_deleted": Boolean,
   }
 ```
 
@@ -84,13 +81,12 @@ Response codes:
 
 ### `POST` `/api/v1/folders`
 
-Usage - create new folder for the chats from web UI.
+Usage - create new folder for the chats for current user from web UI.
 
 Request body:
 
 ```js
 {
-    "user_id" : String, // required
     "name" : String // required
 }
 ```
@@ -176,18 +172,11 @@ Query params:
 
 ```js
 {
-    "user_id" : String, // required, for now I don't see a place where we would want to retrieve chats for all users
-    "is_deleted" : Boolean // optional, all folders by default
+  // no query parameters are implemented
 }
 ```
 
-Request with params:
-
-```
-GET /api/v1/chats?id=123&user_id=456&is_deleted=true
-```
-
-Response:
+Response is <b>always an array</b>, even if only one item matches the query:
 
 ```js
 [
@@ -196,8 +185,8 @@ Response:
     creator_id: String,
     name: String,
     folder_id: String,
-    created_timestamp: UnixTimestamp,
-    used_timestamp: UnixTimestamp, // for sorting by date on UI
+    created_timestamp: UnixTimestamp(millis),
+    used_timestamp: UnixTimestamp(millis), // for sorting by date on UI
     is_deleted: Boolean,
     is_pinned: Boolean,
     // most likely model_config will have flexible number of properties
@@ -213,8 +202,8 @@ Response:
     creator_id: String,
     name: String,
     folder_id: String,
-    created_timestamp: UnixTimestamp,
-    used_timestamp: UnixTimestamp, // for sorting by date on UI
+    created_timestamp: UnixTimestamp(millis),
+    used_timestamp: UnixTimestamp(millis), // for sorting by date on UI
     is_deleted: Boolean,
     is_pinned: Boolean,
     // most likely model_config will have flexible number of properties
@@ -241,24 +230,24 @@ Response codes:
 
 Usage - describe chats by id, right now probably is not going to be used on UI.
 
-Response:
+Response is a single object or an error if not found:
 
 ```js
-  {
-    id: String,
-    creator_id: String,
-    name: String,
-    folder_id: String,
-    created_timestamp: UnixTimestamp,
-    used_timestamp: UnixTimestamp, // for sorting by date on UI
-    is_deleted: Boolean,
-    is_pinned: Boolean,
+{
+    "id": String,
+    "creator_id": String,
+    "name": String,
+    "folder_id": String,
+    "created_timestamp": UnixTimestamp (millis),
+    "used_timestamp": UnixTimestamp (millis), // for sorting by date on UI
+    "is_deleted": Boolean,
+    "is_pinned": Boolean,
     // most likely model_config will have flexible number of properties
-    model_config: {
-      name: String,
-      max_tokens: Integer,
-      temperature: Integer,
-      top_p: Integer,
+    "model_config": {
+        "name": String,
+        "max_tokens": Integer,
+        "temperature": Integer,
+        "top_p": Integer,
     },
   }
 ```
@@ -282,12 +271,10 @@ Request body:
 
 ```js
 {
-    "id" : String,
-    "creator_id" : String, // refers to user_id
     "first_prompt" : String, // required in order to create the name of the chat (summary for the prompt will be used as name of the chat)
     "folder_id" : String, // Optional, in case chat will be created in specific folder from the start
     "is_pinned" : Boolean, // Optional, if we want it pinned right from the start
-    "model_config" : {
+    "model_config" : { // optional
         "name" : String,
         "max_tokens" : Integer, // Optional
         "temperature" : Integer, // Optional
@@ -302,10 +289,10 @@ Response:
 {
     "id" : String,
     "creator_id" : String, // refers to user_id
-    "name" : String,
+    "name" : String, // AI-generated name based on the first_prompt
     "folder_id" : String,
-    "created_timestamp" : UnixTimestamp,
-    "used_timestamp" : UnixTimestamp,
+    "created_timestamp" : UnixTimestamp (millis),
+    "used_timestamp" : UnixTimestamp (millis),
     "is_pinned" : Boolean,
     "model_config" : {
         "name" : String,
@@ -325,7 +312,7 @@ Response codes:
 503 - Service Unavailable: maintenance, etc.
 ```
 
-### `PATCH` `/api/v1/chats/${id}` - partial update by chat id, only provided fields are changed
+### `PATCH` `/api/v1/chats/{id}` - partial update by chat id, only provided fields are changed
 
 Usage - rename chats on the Chats webpage on UI or pin them or move to a different folder.
 
@@ -337,7 +324,7 @@ Request body:
     "folder_id" : String, // optional - move chat on web
     "is_pinned" : Boolean, // optional - pin / unpin
     // if the model should be updated
-    "model_config" : {
+    "model_config" : { // optional
         "name" : String,
         "max_tokens" : Integer,
         "temperature" : Integer,
@@ -354,8 +341,8 @@ Response:
     "creator_id" : String, // refers to user_id
     "name" : String,
     "folder_id" : String,
-    "created_timestamp" : UnixTimestamp,
-    "used_timestamp" : UnixTimestamp,
+    "created_timestamp" : UnixTimestamp (millis),
+    "used_timestamp" : UnixTimestamp (millis),
     "is_pinned" : Boolean,
         "model_config" : {
         "name" : String,
@@ -407,53 +394,44 @@ Query params:
 ```js
 {
     "chat_id" : String, // required for now, can't see a use case for fetching everything
-    "is_deleted" : Boolean, // optional, False by default
-    "start" : Integer, // 0 by default, for loading more messages in chat on demand while scrolling
-    "limit" : Integer // 50 by default, for loading more messages in chat on demand while scrolling
+    "start" : Integer, // optional, 0 by default, 🚩🚩🚩 this will be updated to new approach that is used for NoSQL DBs, most likely will be "id" of the last message returned to front end on the previos page
+    "limit" : Integer // optional, 50 by default, for loading more messages in chat on demand while scrolling
 }
 ```
 
 Request with params:
-`GET` `/api/v1/messages?chat_id=12345&is_deleted=false&start=0&limit=50`
+`GET` `/api/v1/messages?chat_id=12345&start=0&limit=50`
 
-Response:
+Response is <b>always an array</b>, even if only one item matches the query:
 
 ```js
 [
   {
     id: String,
     user_id: String,
-    timestamp: UnixTimestamp,
-    content: [
-      {
-        type: "text",
-        value: String, // text here
-      },
-      {
-        type: "file",
-        value: {
-          file_name: String,
-          file_id: String,
+    timestamp: UnixTimestamp(millis),
+    text: String, // message text here
+    files: [
+        {
+            "name" : String,
+            "id": String,
+            "url" : URL,
+            "type" : String // check mimetypes
         },
-      },
     ],
   },
   {
     id: String,
     user_id: String,
-    timestamp: UnixTimestamp,
-    content: [
-      {
-        type: "text",
-        value: String, // text here
-      },
-      {
-        type: "file",
-        value: {
-          file_name: String,
-          file_id: String,
+    timestamp: UnixTimestamp(millis),
+    text: String, // message text here
+    files: [
+        {
+            "name" : String,
+            "id": String,
+            "url" : URL,
+            "type" : String // check mimetypes
         },
-      },
     ],
   },
 ];
@@ -473,27 +451,22 @@ Response codes:
 Usage - create new message for the chats from web UI.
 
 🚩🚩🚩 Is it reasonable to call this endpoint `/messages`, or is it better to make it sendMessage, and skip `POST` for `/api/v1/messages` since it might be not exactly rest?
+🚩🚩🚩 Ideally we need to stream the response from our Lambdas
 
 Request body:
 
 ```js
 {
     "chat_id" : String,
-    "user_id" : String,
-    "timestamp": UnixTimestamp,
-    "content" : [
-      {
-        "type": String, // predefined values, text, file, etc.
-        "value" : String, // text here
-      },
-      {
-        "type": "file",
-        "value": {
-          "file_name": String,
-          "file_id": String,
-        }
-      }
-    ]
+    "timestamp": UnixTimestamp (millis),
+    "first_prompt": String, // message text here
+    "files" : File[],
+    "model_config": {
+      "name": String,
+      "max_tokens": Integer,
+      "temperature": Integer,
+      "top_p": Integer,
+    },
 }
 ```
 
@@ -506,19 +479,15 @@ Response:
     "id" : String, // response message id
     "user_id" : String,
     "chat_id" : String,
-    "content" : [
+    "text": String, // message text here
+    "files" : [
         {
-            "type" : "text",
-            "value" : String // text here
+            "name" : String,
+            "id": String,
+            "url" : URL,
+            "type" : String // check mimetypes
         },
-        {
-            "type" : "file",
-            "value" : {
-                "file_name" : String,
-                "file_id" : String
-            }
-        }
-    ]
+    ],
 }
 ```
 
@@ -527,38 +496,6 @@ Response codes:
 ```code
 200 - Success
 400 - Bad request params
-500 - Unexpected server error
-503 - Service Unavailable: maintenance, etc.
-```
-
-### `PATCH` `/api/v1/messages/{id}`
-
-Usage - to update the prompt or files inside the message. Right now this most likely will not be used.
-
-🚩🚩🚩 IMPORANT: THIS SHOULD BE DISCUSSED FURTHER IN ORDER TO UNDERSTAND WHAT IS SUPPOSED TO HAPPEN ON BACKEND. DO WE NEED TO `DELETE` EVERYTHING AFTERWARDS AND REGENERATE THE REPLY FROM MODEL ?
-
-Request body:
-
-```js
-{
-    // to be discussed
-}
-```
-
-Response:
-
-```js
-{
-    // to be discussed
-}
-```
-
-Response codes:
-
-```code
-200 - Success
-400 - Bad request params
-404 - Message not found by id
 500 - Unexpected server error
 503 - Service Unavailable: maintenance, etc.
 ```
@@ -569,6 +506,8 @@ Response codes:
 
 🚩🚩🚩 In the future we probably would need to add stateless API, that will not be reliant on chat_ids, folders, etc. We can add it in similar format OpenAI did, where users provide request context and model details, we just act as a proxy to send a request to model and return response, nothing else (no message saving to DB, etc.), and give this endpoint to other platforms so they can interact with models within our company. Pathing can probably look something like `POST` `/api/v1/stateless/messages`
 Because if we can provide both context and chat id - how do even manage these items inside the system? Usually model APIs provide option to give messages to it directly, but it's probably not a good approach for interacting with front end since we delegate message managing to front end. I guess backend should manage conversation history based on chat id and adds previous messages to request. We can later add an endpoint that will actually provide ability to send context together with the message.
+
+🚩🚩🚩 In general for endpoints that iteract with certain folder, chat, etc. do we need to check their ownership for resource?
 
 ## Data structure
 
@@ -596,7 +535,7 @@ id - Partition key
 
 ```js
 {
-    "id" : String,
+    "id" : String (UUID),
     "name" : String,
     "user_id" : String,
     "is_deleted" : Boolean
@@ -612,15 +551,15 @@ Notes:
 
 ```js
 {
-    id: String,
+    id: String (UUID),
     creator_id: String, // basically user_id
     name: String,
     folder_id: String,
-    created_timestamp: UnixTimestamp,
-    used_timestamp: UnixTimestamp, // for sorting by date on UI
+    created_timestamp: UnixTimestamp (millis),
+    used_timestamp: UnixTimestamp (millis), // for sorting by date on UI
     is_deleted: Boolean,
     is_pinned: Boolean,
-    // 🚩🚩🚩 🚩🚩🚩 🚩🚩🚩 model configuration, we will need to have it inside the chat entity, since when we retrieve existing chat from the database we need to know what settings the user uses, right?🚩🚩🚩 🚩🚩🚩 🚩🚩🚩
+    // 🚩🚩🚩 model configuration, we will need to have it inside the chat entity, since when we retrieve existing chat from the database we need to know what settings the user uses, right?
     // most likely model_config will have flexible number of properties per provider
     model_config: {
       name: String,
@@ -638,40 +577,25 @@ Notes:
 
 🚩🚩🚩 Current concerns - how will we query the chats by user. We can have a field with creator_id in order to start with something. But later on if we will decide to have chats that allow multiple users we will need to do something since having and array of user_ids in chat is inefficient for queriying in DynamoDB, so we might need a helper table which will contain user_id and chatId combinations.
 
-🚩🚩🚩 Also we will need to filter by is_deleted either through DynamoDB filtering or inside the code, most likely in the code
-
 ### Messages
 
 ```js
 {
-    "id" : String,
+    "id" : String(UUID),
     "user_id" : String,
     "chat_id" : String,
-    "timestamp" : UnixTimestamp,
-    "content" : [
-        {
-            "type" : "text",
-            "value": String, // text here
-        },
-        {
-            "type": "file",
-            "value": {
-                "file_name" : String,
-                "file_id": String,
-            },
-        },
-    ],
-    "is_deleted" : Boolean,
-    "isForUi" : Boolean, // 🚩🚩🚩 I am pretty sure that we will need to have some technical field that will show whether some of the messages should be displayed on UI. My concern here is mostly based on the upload files functionality. If we plan to upload the file to context and create messages from it to keep it in context, then we will need to be able to not display such messages on web, since user didn't send them, this is under the hood behaviour.
-
-    // as alternative to "content" field
+    "timestamp" : UnixTimestamp (millis),
     "text": String, // message text here
     "files" : [
         {
-            "file_name" : String,
-            "file_id": String,
+            "name" : String,
+            "id": String,
+            "url" : URL,
+            "type" : String // check mimetypes
         },
     ],
+    "is_deleted" : Boolean,
+    "is_for_ui" : Boolean, // 🚩🚩🚩 I am pretty sure that we will need to have some technical field that will show whether some of the messages should be displayed on UI. My concern here is mostly based on the upload files functionality. If we plan to upload the file to context and create messages from it to keep it in context, then we will need to be able to not display such messages on web, since user didn't send them, this is under the hood behaviour.
 }
 ```
 
@@ -683,7 +607,9 @@ Notes:
 
 🚩🚩🚩 Maybe we can also add a field, something like "response_to" an put message id of the user sent message, this way it would be easier to do analytics or debugging, tho since we already have a pretty simple structure where we are using 1 on 1 conversation where we can just sort everything by timestamp.
 
-🚩🚩🚩 In general there is a concern about how model params should be managed and where do we store the information about the model? I'd guess this should be in chat settings (chat) and things like model name, max tokens, etc. should be related to chat in this case? But in this case we are more in terms of quickly switching model for API calls. Because in case we save config in chats, we will first need to update chat settings with one request and then process message with different one, since we won't be able to provide those params together with message?
+🚩🚩🚩 Ids for entities most likely will be UUID or something similar auto-generated.
+
+🚩🚩🚩 In general there is a concern about how model params should be managed and where do we store the information about the model? I'd guess this should be in chat settings (chat) and things like model name, max tokens, etc. should be related to chat in this case? But in this case we are more limited in terms of quickly switching model for API calls. Because in case we save config in chats, we will first need to update chat settings with one request and then process message with different one, since we won't be able to provide those params together with message?
 
 🚩🚩🚩 We will need to add filtering either inside DynamoDB or in the code. Code will be easier obviously, not sure about performance and pricing for filtering directly inside the DynamoDB
 
