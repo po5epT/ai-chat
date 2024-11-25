@@ -11,8 +11,16 @@
 		/>
 
 		<div
+			v-else
+			class="file-badge"
+		>
+			{{ fileExt }}
+		</div>
+
+		<div
 			v-if="deleteAllowed"
-			class="file-preview-actions"
+			class="file-preview-actions overlay"
+			:class="{ overlay_light: !isImage }"
 		>
 			<ElIcon
 				class="file-preview-actions__item"
@@ -29,7 +37,8 @@ import { computed } from 'vue';
 import { ElIcon } from 'element-plus';
 import { Delete } from '@element-plus/icons-vue';
 
-import type { IUploadFile } from '@/types/file';
+import type { IUploadFile } from '@/types';
+import { MAP_MIME_TYPE_TO_EXT } from '@/config';
 import { isFileImage } from '@/utils';
 
 const {
@@ -52,6 +61,7 @@ const filePreviewStyles = computed(() => ({
 }));
 
 const isImage = computed(() => isFileImage(file));
+const fileExt = computed(() => MAP_MIME_TYPE_TO_EXT[file.type]);
 
 const handleRemove = (file: IUploadFile) => {
 	emit('delete', file);
@@ -59,19 +69,27 @@ const handleRemove = (file: IUploadFile) => {
 </script>
 
 <style scoped>
+.overlay {
+	opacity: 0;
+}
+
 .file-preview {
 	width: 70px;
 	height: 70px;
-	border-radius: 6px;
+	border-radius: var(--ai-border-radius-xs);
 	object-fit: cover;
 	overflow: hidden;
+	background-color: var(--ai-bg-color-secondary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .file-preview_deletable {
 	position: relative;
 }
 
-.file-preview_deletable:hover .file-preview-actions {
+.file-preview_deletable:hover .overlay {
 	opacity: 1;
 }
 
@@ -81,27 +99,24 @@ const handleRemove = (file: IUploadFile) => {
 	height: 100%;
 }
 
+.file-badge {
+	text-transform: uppercase;
+	background-color: black;
+	color: white;
+	font-weight: 500;
+	font-size: 12px;
+	line-height: 20px;
+	border-radius: var(--ai-border-radius-xs);
+	padding: 0 5px;
+}
+
 .file-preview-actions {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: rgba(0, 0, 0, 0.7);
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	opacity: 0;
-	transition: opacity 0.3s;
-}
-
-.file-preview-actions__item {
-	color: var(--ai-color-secondary);
-	transition: color 0.3s;
 }
 
 .file-preview-actions__item:hover {
 	cursor: pointer;
-	color: white;
 }
 </style>

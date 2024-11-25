@@ -11,6 +11,7 @@
   --ai-color-bg-page: var(--ai-bg-color-primary);
 
   --ai-border-color: #D4D7DE;
+  --ai-border-radius-xs: 2px;
 
   --ai-page-width: 1440px;
   --ai-base-h-padding: 20px;

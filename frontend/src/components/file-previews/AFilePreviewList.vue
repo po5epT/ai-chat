@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import AFilePreview from '@/components/file-previews/AFilePreview.vue';
-import type { IUploadFile } from '@/types/file';
+import type { IUploadFile } from '@/types';
 import { computed } from 'vue';
 
 type Props = {

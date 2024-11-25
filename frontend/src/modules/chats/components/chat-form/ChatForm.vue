@@ -45,9 +45,9 @@ import ArrowUp from '@/components/icons/ArrowUp.vue';
 import ATextarea from '@/components/textarea/ATextarea.vue';
 import AInputFile from '@/components/textarea/AInputFile.vue';
 import AFilePreviewList from '@/components/file-previews/AFilePreviewList.vue';
-import { convertRawFileToUploadFile, revokeObjectUrl } from '@/utils';
+import { convertRawFileToUploadFile, revokeObjectUrl, validateFileFormat } from '@/utils';
 import type { IChatMessageFile } from '@/modules/chats/types';
-import type { IUploadFile } from '@/types/file';
+import type { IUploadFile } from '@/types';
 
 const emit = defineEmits<{
 	(e: 'submit:message', payload: { text: string; files: IChatMessageFile[] });
@@ -60,6 +60,12 @@ const hasMessageText = computed(() => messageText.value.trim().length > 0);
 // ---- files
 const messageFiles = ref<IChatMessageFile[]>([]);
 const hasMessageFiles = computed(() => messageFiles.value.length > 0);
+const addFilesToList = (files: FileList) => {
+	messageFiles.value = [
+		...messageFiles.value,
+		...Array.from(files).filter(validateFileFormat).map(convertRawFileToUploadFile),
+	];
+};
 const onFileChange = (event: InputEvent) => {
 	const target = event.target as HTMLInputElement;
 
@@ -67,18 +73,14 @@ const onFileChange = (event: InputEvent) => {
 		return;
 	}
 
-	Array.from(target.files).forEach((file) => {
-		messageFiles.value.push(convertRawFileToUploadFile(file));
-	});
+	addFilesToList(target.files);
 };
 const onFileDrop = (event: DragEvent) => {
 	if (event.dataTransfer.files.length === 0) {
 		return;
 	}
 
-	Array.from(event.dataTransfer.files).forEach((file) => {
-		messageFiles.value.push(convertRawFileToUploadFile(file));
-	});
+	addFilesToList(event.dataTransfer.files);
 };
 const onDeleteFile = (file: IUploadFile) => {
 	messageFiles.value = messageFiles.value.filter(({ uid }) => file.uid !== uid);

@@ -1,4 +1,4 @@
-import type { IUploadFile } from '@/types/file';
+import type { IUploadFile } from '@/types';
 import type { IChat } from '@/modules/chats/types/chatTypes';
 
 export interface IChatMessageFile extends IUploadFile {}

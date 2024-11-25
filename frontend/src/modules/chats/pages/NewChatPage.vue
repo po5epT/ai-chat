@@ -18,7 +18,7 @@ import type { IChatMessage } from '@/modules/chats/types';
 import { createMockSystemFirstChatMessage, createNewChatMessage } from '@/modules/chats/mocks';
 import { chatMessagesRepository, chatsRepository } from '@/modules/chats/repositories';
 import { useChatsStore } from '@/modules/chats/stores/chatsStore';
-import type { IUploadFile } from '@/types/file';
+import type { IUploadFile } from '@/types';
 
 const router = useRouter();
 
