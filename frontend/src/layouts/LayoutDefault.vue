@@ -26,7 +26,8 @@
 			>
 				<ElMenuItem index="/chats">
 					<ElIcon>
-						<MagicPencil />
+						<MagicPencilFilled v-if="currentMenuItemIs('/chats')" />
+						<MagicPencil v-else />
 					</ElIcon>
 
 					<template #title>
@@ -36,7 +37,8 @@
 
 				<!--				<ElMenuItem index="/guides">-->
 				<!--					<ElIcon>-->
-				<!--						<AlphabetBook />-->
+				<!--						<AlphabetBookFilled v-if="currentMenuItemIs('/guides')" />-->
+				<!--						<AlphabetBook v-else />-->
 				<!--					</ElIcon>-->
 
 				<!--					<template #title>-->
@@ -46,7 +48,8 @@
 
 				<!--				<ElMenuItem index="/monitoring">-->
 				<!--					<ElIcon>-->
-				<!--						<GraphChart />-->
+				<!--						<GraphChartFilled v-if="currentMenuItemIs('/monitoring')" />-->
+				<!--						<GraphChart v-else />-->
 				<!--					</ElIcon>-->
 
 				<!--					<template #title>-->
@@ -56,7 +59,8 @@
 
 				<!--				<ElMenuItem index="/assistants">-->
 				<!--					<ElIcon>-->
-				<!--						<SmileTV />-->
+				<!--						<SmileTVFilled v-if="currentMenuItemIs('/assistants')" />-->
+				<!--						<SmileTV v-else />-->
 				<!--					</ElIcon>-->
 
 				<!--					<template #title>-->
@@ -64,15 +68,16 @@
 				<!--					</template>-->
 				<!--				</ElMenuItem>-->
 
-				<ElMenuItem index="/settings">
-					<ElIcon>
-						<Setting />
-					</ElIcon>
+				<!--				<ElMenuItem index="/settings">-->
+				<!--					<ElIcon>-->
+				<!--						<SettingsFilled v-if="currentMenuItemIs('/settings')" />-->
+				<!--						<Settings v-else />-->
+				<!--					</ElIcon>-->
 
-					<template #title>
-						<span class="sidebar__label">Settings</span>
-					</template>
-				</ElMenuItem>
+				<!--					<template #title>-->
+				<!--						<span class="sidebar__label">Settings</span>-->
+				<!--					</template>-->
+				<!--				</ElMenuItem>-->
 			</ElMenu>
 
 			<div class="sidebar__item sidebar__item_toggle">
@@ -94,13 +99,19 @@
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElIcon, ElMenu, ElMenuItem } from 'element-plus';
-import { DArrowLeft, DArrowRight, Setting } from '@element-plus/icons-vue';
+import { DArrowLeft, DArrowRight } from '@element-plus/icons-vue';
 
 import AppLogo from '@/components/icons/AppLogo.vue';
 import MagicPencil from '@/components/icons/MagicPencil.vue';
+import MagicPencilFilled from '@/components/icons/MagicPencilFilled.vue';
+// import Settings from '@/components/icons/Settings.vue';
+// import SettingsFilled from '@/components/icons/SettingsFilled.vue';
+// import AlphabetBookFilled from '@/components/icons/AlphabetBookFilled.vue';
 // import AlphabetBook from '@/components/icons/AlphabetBook.vue';
 // import GraphChart from '@/components/icons/GraphChart.vue';
 // import SmileTV from '@/components/icons/SmileTV.vue';
+// import SmileTVFilled from '@/components/icons/SmileTVFilled.vue';
+// import GraphChartFilled from '@/components/icons/GraphChartFilled.vue';
 
 const route = useRoute();
 const routeParentPath = computed(() => {
@@ -108,6 +119,9 @@ const routeParentPath = computed(() => {
 
 	return '/' + path;
 });
+const currentMenuItemIs = (path: string) => {
+	return path === routeParentPath.value;
+};
 
 const isCollapsed = ref(false);
 const toggleCollapse = () => {
