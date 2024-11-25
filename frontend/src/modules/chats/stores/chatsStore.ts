@@ -28,7 +28,28 @@ export const useChatsStore = defineStore('chats', () => {
 		chatList.value.push(chat);
 	};
 
+	const updateChat = (chatToUpdate: IChat) => {
+		chatList.value = chatList.value.map((chat) => {
+			if (chat.id === chatToUpdate.id) {
+				return chatToUpdate;
+			}
+
+			return chat;
+		});
+
+		if (chatToUpdate.name === currentChatName.value) {
+			setCurrentChatById(chatToUpdate.id);
+		}
+	};
+
+	const deleteChat = (chatId: IChat['id']) => {
+		chatList.value = chatList.value.filter((chat) => {
+			return chat.id !== chatId;
+		});
+	};
+
 	const currentChat = ref<Partial<IChat> | IChat | null>(null);
+	const currentChatId = computed(() => currentChat.value?.id ?? null);
 	const currentChatName = computed(() => currentChat.value?.name ?? 'New chat');
 	const setCurrentChatById = (chatId: IChat['id']) => {
 		const chat: IChat = mapChatIdToChat.value[chatId];
@@ -47,7 +68,10 @@ export const useChatsStore = defineStore('chats', () => {
 		isChatsLoading,
 		loadChats,
 		addChat,
+		updateChat,
+		deleteChat,
 		currentChat,
+		currentChatId,
 		currentChatName,
 		setCurrentChatById,
 		resetCurrentChat,

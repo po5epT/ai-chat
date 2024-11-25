@@ -86,7 +86,7 @@ const onDeleteFile = (file: IUploadFile) => {
 };
 
 // ---- submit btn
-const isSubmitBtnDisabled = computed(() => !hasMessageText && !hasMessageFiles);
+const isSubmitBtnDisabled = computed(() => !hasMessageText.value && !hasMessageFiles.value);
 const submitBtnType = computed(() => (isSubmitBtnDisabled.value ? 'info' : 'primary'));
 const submitMessage = () => {
 	if (isSubmitBtnDisabled.value) {
