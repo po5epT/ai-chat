@@ -17,7 +17,7 @@
 			<div class="sidebar__item">
 				<NewChatButton
 					:disabled="isCreateChatDisabled"
-					@click="onChatCreate"
+					@click="onCreateChat"
 				/>
 			</div>
 
@@ -25,6 +25,8 @@
 				<ChatMenu
 					v-if="recentChatList.length"
 					:chats-list="recentChatList"
+					@rename:chat="onRenameChat"
+					@delete:chat="onDeleteChat"
 				>
 					<template #subtitle>
 						<div class="sidebar__item sidebar__item_subtitle">
@@ -36,6 +38,8 @@
 				<ChatMenu
 					v-if="otherChatList.length"
 					:chats-list="otherChatList"
+					@rename:chat="onRenameChat"
+					@delete:chat="onDeleteChat"
 				>
 					<template #subtitle>
 						<div class="sidebar__item sidebar__item_subtitle">
@@ -64,13 +68,15 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ElText } from 'element-plus';
+import { ElText, ElMessageBox } from 'element-plus';
 
 import LayoutPage from '@/layouts/LayoutPage.vue';
 import NewChatButton from '@/modules/chats/components/new-chat-button/NewChatButton.vue';
 import ChatMenu from '@/modules/chats/components/chat-menu/ChatMenu.vue';
 import { useChatsStore } from '@/modules/chats/stores/chatsStore';
 import { MILLISECONDS_IN_A_WEEK } from '@/config';
+import type { IChat } from '@/modules/chats/types';
+import { chatsRepository } from '@/modules/chats/repositories';
 
 const route = useRoute();
 const router = useRouter();
@@ -105,13 +111,51 @@ const isCreateChatDisabled = computed(() => {
 	return route.name === 'newChat';
 });
 
-const onChatCreate = () => {
+const onCreateChat = () => {
 	if (isCreateChatDisabled.value) {
 		return;
 	}
 
 	return router.push({ name: 'newChat' });
 };
+const onRenameChat = (chat: IChat) => {
+	ElMessageBox({
+		title: 'Rename chat',
+		confirmButtonText: 'Apply',
+		showCancelButton: true,
+		showInput: true,
+		inputValue: chat.name,
+		inputPlaceholder: 'Chat name',
+		inputValidator: (value: string) => value.trim().length > 0,
+	})
+		.then((result) => chatsRepository.updateChat(chat.id, { name: result.value }))
+		.then((updatedChat) => chatsStore.updateChat(updatedChat))
+		.catch((err) => {
+			if (err instanceof Error) {
+				console.log(err);
+			}
+		});
+};
+const onDeleteChat = (chat: IChat) => {
+	ElMessageBox.confirm('Are you sure you want to delete this chat?', {
+		title: 'Delete chat',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+	})
+		.then(() => chatsRepository.deleteChat(chat.id))
+		.then(() => chatsStore.deleteChat(chat.id))
+		.catch((err) => {
+			if (err instanceof Error) {
+				console.log(err);
+			}
+		});
+};
+
+chatsStore.$onAction(({ name, args, after }) => {
+	if (name === 'deleteChat' && args[0] === chatsStore.currentChatId) {
+		after(() => router.push({ name: 'newChat' }));
+	}
+});
 </script>
 
 <style scoped>

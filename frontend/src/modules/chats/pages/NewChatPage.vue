@@ -5,13 +5,12 @@
 		:is-system-generating="isSystemGenerating"
 	/>
 
-	<ChatForm @submit="onSubmit" />
+	<ChatForm @submit:message="onSubmitMessage" />
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { type UploadUserFile } from 'element-plus';
 
 import ChatMessagesList from '@/modules/chats/components/chat-messages-list/ChatMessagesList.vue';
 import ChatForm from '@/modules/chats/components/chat-form/ChatForm.vue';
@@ -19,6 +18,7 @@ import type { IChatMessage } from '@/modules/chats/types';
 import { createMockSystemFirstChatMessage, createNewChatMessage } from '@/modules/chats/mocks';
 import { chatMessagesRepository, chatsRepository } from '@/modules/chats/repositories';
 import { useChatsStore } from '@/modules/chats/stores/chatsStore';
+import type { IUploadFile } from '@/types/file';
 
 const router = useRouter();
 
@@ -29,7 +29,7 @@ const isSystemGenerating = ref(false);
 const chatsStore = useChatsStore();
 chatsStore.resetCurrentChat();
 
-const onSubmit = async ({ text = '', files = [] }: { text: string; files: UploadUserFile[] }) => {
+const onSubmitMessage = async ({ text = '', files = [] }: { text: string; files: IUploadFile[] }) => {
 	const newChat = { first_prompt: text };
 	const newChatMessage = createNewChatMessage('newChatId', { text, files });
 	messagesList.value.push(newChatMessage);

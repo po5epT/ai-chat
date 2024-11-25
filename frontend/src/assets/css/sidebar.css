@@ -117,6 +117,22 @@
   font-weight: 500;
 }
 
-.sidebar .el-menu-item .el-icon {
+.sidebar .el-menu-item .el-icon:not(.menu-icon) {
   margin-right: 8px;
+}
+
+.sidebar .el-menu-item .menu-icon,
+.sidebar .sidebar .el-menu-item.is-active .menu-icon {
+  position: absolute;
+  display: block;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  color: var(--ai-color-primary);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.sidebar .el-menu-item:hover .menu-icon {
+  opacity: 1;
 }
