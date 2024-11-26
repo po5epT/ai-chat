@@ -22,12 +22,11 @@
 			class="file-preview-actions overlay"
 			:class="{ overlay_light: !isImage }"
 		>
-			<ElIcon
-				class="file-preview-actions__item"
-				@click="handleRemove(file)"
-			>
-				<Delete />
-			</ElIcon>
+			<span class="file-preview-actions__item">
+				<ElIcon @click="handleRemove(file)">
+					<Delete />
+				</ElIcon>
+			</span>
 		</div>
 	</div>
 </template>
@@ -76,10 +75,11 @@ const handleRemove = (file: IUploadFile) => {
 .file-preview {
 	width: 70px;
 	height: 70px;
-	border-radius: var(--ai-border-radius-xs);
 	object-fit: cover;
 	overflow: hidden;
 	background-color: var(--ai-bg-color-secondary);
+	border: 1px solid var(--ai-border-color);
+	border-radius: var(--ai-border-radius-xs);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -114,6 +114,15 @@ const handleRemove = (file: IUploadFile) => {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+
+.file-preview-actions__item {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	background-color: transparent;
 }
 
 .file-preview-actions__item:hover {
