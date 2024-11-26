@@ -11,6 +11,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, useTemplateRef, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
+import flatry from 'flatry';
 
 import type { IChat, IChatMessage, IChatMessageFile } from '@/modules/chats/types';
 import ChatMessagesList from '@/modules/chats/components/chat-messages-list/ChatMessagesList.vue';
@@ -18,6 +19,7 @@ import ChatForm from '@/modules/chats/components/chat-form/ChatForm.vue';
 import { createMockSystemChatMessage, createNewChatMessage } from '@/modules/chats/mocks';
 import { chatMessagesRepository } from '@/modules/chats/repositories';
 import { useChatsStore } from '@/modules/chats/stores/chatsStore';
+import { errorNotify } from '@/services/notify';
 
 const route = useRoute();
 const chatsStore = useChatsStore();
@@ -29,18 +31,20 @@ const isMessagesLoading = ref(false);
 const isSystemGenerating = ref(false);
 
 watchEffect(async () => {
-	try {
-		isMessagesLoading.value = true;
-		messagesList.value = [];
-		messagesList.value = await chatMessagesRepository.getMessages(chatId.value);
-		chatsStore.setCurrentChatById(chatId.value);
-		await nextTick();
-		messagesListRef.value?.jump();
-	} catch (err) {
-		console.log(err);
-	} finally {
-		isMessagesLoading.value = false;
+	messagesList.value = [];
+	isMessagesLoading.value = true;
+	const [err, messages] = await flatry(chatMessagesRepository.getMessages(chatId.value));
+	isMessagesLoading.value = false;
+
+	if (err) {
+		errorNotify(err.message ?? err);
+		return;
 	}
+
+	messagesList.value = messages;
+	chatsStore.setCurrentChatById(chatId.value);
+	await nextTick();
+	messagesListRef.value?.jump();
 });
 
 const onSubmitMessage = ({ text, files }: { text: string; files: IChatMessageFile[] }) => {
@@ -67,9 +71,7 @@ const onSubmitMessage = ({ text, files }: { text: string; files: IChatMessageFil
 			messagesList.value.push(createMockSystemChatMessage());
 			nextTick().then(() => messagesListRef.value?.scroll());
 		})
-		.catch((err) => {
-			console.log(err);
-		})
+		.catch((err) => errorNotify(err.message ?? err))
 		.finally(() => {
 			isSystemGenerating.value = false;
 		});

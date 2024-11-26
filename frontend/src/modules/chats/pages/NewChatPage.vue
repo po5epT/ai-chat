@@ -11,47 +11,55 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import flatry from 'flatry';
 
 import ChatMessagesList from '@/modules/chats/components/chat-messages-list/ChatMessagesList.vue';
 import ChatForm from '@/modules/chats/components/chat-form/ChatForm.vue';
+import type { IUploadFile } from '@/types';
 import type { IChatMessage } from '@/modules/chats/types';
+import { errorNotify } from '@/services/notify';
 import { createMockSystemFirstChatMessage, createNewChatMessage } from '@/modules/chats/mocks';
 import { chatMessagesRepository, chatsRepository } from '@/modules/chats/repositories';
 import { useChatsStore } from '@/modules/chats/stores/chatsStore';
-import type { IUploadFile } from '@/types';
 
 const router = useRouter();
-
-const messagesList = ref<IChatMessage[]>([createMockSystemFirstChatMessage()]);
-
-const isSystemGenerating = ref(false);
-
 const chatsStore = useChatsStore();
 chatsStore.resetCurrentChat();
+
+const messagesList = ref<IChatMessage[]>([createMockSystemFirstChatMessage()]);
+const isSystemGenerating = ref(false);
 
 const onSubmitMessage = async ({ text = '', files = [] }: { text: string; files: IUploadFile[] }) => {
 	const newChat = { first_prompt: text };
 	const newChatMessage = createNewChatMessage('newChatId', { text, files });
 	messagesList.value.push(newChatMessage);
 
-	try {
-		isSystemGenerating.value = true;
-		const chat = await chatsRepository.createChat(newChat);
-		// TODO Remove when API is presented
-		chat.id = +new Date() + '';
+	isSystemGenerating.value = true;
+	const [chatErr, chat] = await flatry(chatsRepository.createChat(newChat));
+	isSystemGenerating.value = false;
 
-		await chatMessagesRepository.createMessage({
+	if (chatErr) {
+		errorNotify(chatErr.message ?? chatErr);
+		return;
+	}
+
+	// TODO Remove when API is presented
+	chat.id = +new Date() + '';
+
+	const [messageErr] = await flatry(
+		chatMessagesRepository.createMessage({
 			...newChatMessage,
 			chat_id: chat.id,
-		});
+		}),
+	);
 
-		chatsStore.addChat(chat);
-
-		return router.push({ name: 'chat', params: { id: chat.id } });
-	} catch (err) {
-		console.log(err);
-	} finally {
-		isSystemGenerating.value = false;
+	if (messageErr) {
+		errorNotify(messageErr.message ?? messageErr);
+		return;
 	}
+
+	chatsStore.addChat(chat);
+
+	return router.push({ name: 'chat', params: { id: chat.id } });
 };
 </script>

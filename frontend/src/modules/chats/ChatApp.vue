@@ -77,13 +77,16 @@ import { useChatsStore } from '@/modules/chats/stores/chatsStore';
 import { MILLISECONDS_IN_A_WEEK } from '@/config';
 import type { IChat } from '@/modules/chats/types';
 import { chatsRepository } from '@/modules/chats/repositories';
+import { errorNotify } from '@/services/notify';
 
 const route = useRoute();
 const router = useRouter();
 
 const chatsStore = useChatsStore();
 
-chatsStore.loadChats().catch(console.log);
+chatsStore.loadChats().catch((err) => {
+	errorNotify(err.message ?? err);
+});
 
 const recentChatList = computed(() => {
 	const today = +new Date();
@@ -132,7 +135,7 @@ const onRenameChat = (chat: IChat) => {
 		.then((updatedChat) => chatsStore.updateChat(updatedChat))
 		.catch((err) => {
 			if (err instanceof Error) {
-				console.log(err);
+				errorNotify(err.message ?? err);
 			}
 		});
 };
@@ -146,7 +149,7 @@ const onDeleteChat = (chat: IChat) => {
 		.then(() => chatsStore.deleteChat(chat.id))
 		.catch((err) => {
 			if (err instanceof Error) {
-				console.log(err);
+				errorNotify(err.message ?? err);
 			}
 		});
 };

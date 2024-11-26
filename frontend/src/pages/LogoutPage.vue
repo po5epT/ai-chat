@@ -5,20 +5,27 @@
 </template>
 
 <script setup lang="ts">
+import flatry from 'flatry';
 import { useRouter } from 'vue-router';
 
 import AppLogo from '@/components/icons/AppLogo.vue';
 import { authRepository } from '@/repositories';
 import { useAuthStore } from '@/stores/auth';
+import { errorNotify } from '@/services/notify';
 
 const router = useRouter();
 const authStore = useAuthStore();
 
 const logout = async () => {
-	await authRepository.logout();
+	const [err] = await flatry(authRepository.logout());
+
+	if (err) {
+		errorNotify(err.message ?? err);
+	}
 
 	authStore.logout();
-	await router.push({ name: 'login' });
+
+	return router.push({ name: 'login' });
 };
 
 logout();

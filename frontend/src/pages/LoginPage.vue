@@ -17,22 +17,29 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { ElButton } from 'element-plus';
+import flatry from 'flatry';
 
 import LayoutAuth from '@/layouts/LayoutAuth.vue';
 import AppLogo from '@/components/icons/AppLogo.vue';
 import { authRepository } from '@/repositories';
 import { useAuthStore } from '@/stores/auth';
+import { errorNotify } from '@/services/notify';
 
 const router = useRouter();
 const authStore = useAuthStore();
 
 const handleLogin = async () => {
 	authStore.isPending = true;
-	const user = await authRepository.login();
-	authStore.isPending = false;
+	const [err, user] = await flatry(authRepository.login());
+
+	if (err) {
+		errorNotify(err.message ?? err);
+		return;
+	}
 
 	authStore.login(user);
-	await router.push({ path: '/' });
+
+	return router.push({ path: '/' }).finally(() => (authStore.isPending = false));
 };
 </script>
 
