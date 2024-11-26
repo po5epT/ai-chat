@@ -1,9 +1,11 @@
 import type { IUploadFile } from '@/types';
 import { ALLOWED_FILE_TYPES_TO_UPLOAD } from '@/config';
 
+export const randomUID = () => performance.now().toString().replace('.', '');
+
 export const convertRawFileToUploadFile = (file: File): IUploadFile => {
 	return {
-		uid: file.lastModified.toString(),
+		uid: randomUID(),
 		name: file.name,
 		type: file.type,
 		size: file.size,

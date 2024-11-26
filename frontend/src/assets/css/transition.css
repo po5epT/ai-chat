@@ -1,0 +1,33 @@
+/* slide-v */
+.slide-v-move,
+.slide-v-enter-active,
+.slide-v-leave-active {
+  transition: all 0.25s ease;
+}
+
+.slide-v-enter-from,
+.slide-v-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.slide-v-leave-active {
+  position: absolute !important;
+}
+
+/* slide-h */
+.slide-h-move,
+.slide-h-enter-active,
+.slide-h-leave-active {
+  transition: all 0.25s ease;
+}
+
+.slide-h-enter-from,
+.slide-h-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.slide-h-leave-active {
+  position: absolute !important;
+}

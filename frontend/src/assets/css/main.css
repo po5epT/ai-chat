@@ -5,6 +5,7 @@
 @import './header.css';
 @import './user.css';
 @import './uploader.css';
+@import './transition.css';
 
 h1, h2 {
   font-weight: 700;

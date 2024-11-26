@@ -1,22 +1,22 @@
 <template>
-	<div
-		v-if="hasFiles"
+	<TransitionGroup
+		name="slide-v"
+		tag="div"
 		class="file-preview-list"
 	>
 		<AFilePreview
 			v-for="item in items"
-			:key="item.id"
+			:key="item.id ?? item.uid"
 			:file="item"
 			:delete-allowed="deleteAllowed"
 			@delete="onDeleteFile"
 		/>
-	</div>
+	</TransitionGroup>
 </template>
 
 <script setup lang="ts">
-import AFilePreview from '@/components/file-previews/AFilePreview.vue';
 import type { IUploadFile } from '@/types';
-import { computed } from 'vue';
+import AFilePreview from '@/components/file-previews/AFilePreview.vue';
 
 type Props = {
 	items?: IUploadFile[];
@@ -29,7 +29,6 @@ const emit = defineEmits<{
 	(e: 'delete', file: IUploadFile): void;
 }>();
 
-const hasFiles = computed(() => items.length > 0);
 const onDeleteFile = (file: IUploadFile) => {
 	emit('delete', file);
 };
