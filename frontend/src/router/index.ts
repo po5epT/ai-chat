@@ -1,21 +1,24 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
+import { authMiddleware } from '@/middlewares';
 import { addChatsRoutes } from '@/modules/chats/router';
 import { addSettingsRoutes } from '@/modules/settings/router';
 
+import addAuthRoutes from './authRoutes';
+
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
-	routes: [],
+	routes: [
+		{
+			path: '/',
+			redirect: '/chats',
+		},
+	],
 });
 
-router.beforeResolve((to, from, next) => {
-	if (to.fullPath === from.fullPath) {
-		return false;
-	}
+router.beforeEach(authMiddleware);
 
-	next();
-});
-
+addAuthRoutes(router);
 addChatsRoutes(router);
 addSettingsRoutes(router);
 

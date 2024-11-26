@@ -1,4 +1,8 @@
 import type { Router, RouteRecordRaw } from 'vue-router';
+
+// @ts-ignore
+import PrimarySidebar from '@/layouts/PrimarySidebar.vue';
+
 // @ts-ignore
 import ChatApp from '../ChatApp.vue';
 
@@ -7,7 +11,10 @@ const chatsRoutes: RouteRecordRaw[] = [
 		path: '/chats',
 		name: 'chats',
 		redirect: '/chats/new-chat',
-		component: ChatApp,
+		components: {
+			default: ChatApp,
+			sidebar: PrimarySidebar,
+		},
 		children: [
 			{
 				path: 'new-chat',

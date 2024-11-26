@@ -17,7 +17,12 @@
 		<template #dropdown>
 			<ElDropdownMenu style="min-width: 120px">
 				<ElDropdownItem>
-					<ElText type="danger">Logout</ElText>
+					<ElText
+						type="danger"
+						@click.stop="onLogoutClick"
+					>
+						Logout
+					</ElText>
 				</ElDropdownItem>
 			</ElDropdownMenu>
 		</template>
@@ -30,10 +35,19 @@ import { ElAvatar, ElDropdown, ElDropdownMenu, ElDropdownItem, ElText } from 'el
 
 import { IUser } from '@/types';
 
-const props = defineProps<{
+type Props = {
 	user: IUser;
+};
+
+const { user } = defineProps<Props>();
+
+const emit = defineEmits<{
+	(e: 'logout'): void;
 }>();
 
+const onLogoutClick = () => {
+	emit('logout');
+};
 const popperOption = computed(() => {
 	return {
 		modifiers: [

@@ -13,9 +13,9 @@
 				class="user-avatar"
 			>
 				<img
-					v-if="user?.avatar_src"
-					:src="user?.avatar_src"
-					:alt="user?.name"
+					v-if="authStore.user?.avatar_src"
+					:src="authStore.user?.avatar_src"
+					:alt="authStore.user?.name"
 				/>
 			</ElAvatar>
 		</template>
@@ -26,11 +26,11 @@
 import { ElAvatar } from 'element-plus';
 
 import type { IChatMessage } from '@/modules/chats/types';
-import { useUserStore } from '@/stores/auth';
+import { useAuthStore } from '@/stores/auth';
 
 import ChatMessage from './ChatMessage.vue';
 
 const { message } = defineProps<{ message: IChatMessage }>();
 
-const { user } = useUserStore();
+const authStore = useAuthStore();
 </script>

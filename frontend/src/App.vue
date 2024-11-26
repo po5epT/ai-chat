@@ -1,11 +1,9 @@
 <template>
-	<LayoutDefault>
+	<div class="wrapper">
+		<RouterView name="sidebar" />
+
 		<RouterView />
-	</LayoutDefault>
+	</div>
 </template>
 
-<script setup lang="ts">
-import { RouterView } from 'vue-router';
-
-import LayoutDefault from '@/layouts/LayoutDefault.vue';
-</script>
+<script setup lang="ts"></script>

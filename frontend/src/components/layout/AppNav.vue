@@ -5,15 +5,23 @@
 		</slot>
 
 		<AUserProfile
-			:user="userStore.user!"
+			:user="authStore.user!"
 			class="nav__user"
+			@logout="handleLogout"
 		/>
 	</nav>
 </template>
 
 <script setup lang="ts">
-import AUserProfile from '@/components/user-profile/AUserProfile.vue';
-import { useUserStore } from '@/stores/auth';
+import { useRouter } from 'vue-router';
 
-const userStore = useUserStore();
+import AUserProfile from '@/components/user-profile/AUserProfile.vue';
+import { useAuthStore } from '@/stores/auth';
+
+const router = useRouter();
+const authStore = useAuthStore();
+
+const handleLogout = () => {
+	return router.push({ name: 'logout' });
+};
 </script>
