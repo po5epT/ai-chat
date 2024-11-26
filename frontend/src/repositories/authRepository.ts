@@ -19,9 +19,17 @@ const createAuthRepository = (apiClient: IApiClient) => {
 		//return apiClient.post<void>(baseURL, {});
 	};
 
+	// TODO remove param when api is presented
+	const validate = async (val: boolean): Promise<boolean> => {
+		await delay(1000);
+
+		return val;
+	};
+
 	return {
 		login,
 		logout,
+		validate,
 	};
 };
 

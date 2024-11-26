@@ -20,7 +20,6 @@ import { ElButton } from 'element-plus';
 
 import LayoutAuth from '@/layouts/LayoutAuth.vue';
 import AppLogo from '@/components/icons/AppLogo.vue';
-import { authRepository } from '@/repositories';
 import { useAuthStore } from '@/stores/auth';
 import { errorNotify } from '@/services/notify';
 
@@ -28,14 +27,12 @@ const router = useRouter();
 const authStore = useAuthStore();
 
 const logout = async () => {
-	const [err] = await flatry(authRepository.logout());
+	const [err] = await flatry(authStore.logout());
 
 	if (err) {
 		errorNotify(err.message ?? err);
 		return;
 	}
-
-	authStore.logout();
 
 	return router.push({ name: 'login' });
 };
