@@ -1,7 +1,7 @@
 <template>
-	<div class="login-image"></div>
+	<div class="auth-image"></div>
 
-	<main class="login-main">
+	<main class="auth-main">
 		<slot />
 	</main>
 </template>
@@ -9,14 +9,14 @@
 <script setup lang="ts"></script>
 
 <style scoped>
-.login-image {
+.auth-image {
 	width: 50vw;
 	background-image: url('/img/login-bg.jpg');
 	background-repeat: no-repeat;
 	background-position: center top;
 }
 
-.login-main {
+.auth-main {
 	display: grid;
 	place-items: center;
 	place-self: center;

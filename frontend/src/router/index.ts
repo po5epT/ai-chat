@@ -24,9 +24,9 @@ addSettingsRoutes(router);
 
 router.addRoute({
 	path: '/:pathMatch(.*)*',
-	name: 'page404',
+	name: '404',
 	// @ts-ignore
-	component: () => import('@/pages/Page404.vue'),
+	component: () => import('@/pages/404Page.vue'),
 });
 
 export default router;

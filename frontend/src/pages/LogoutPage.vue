@@ -3,12 +3,20 @@
 		<AppLogo style="width: 50px; height: auto" />
 
 		<p class="logout-text">Thank you for <br />being with us</p>
+
+		<ElButton
+			type="primary"
+			disabled
+		>
+			Login
+		</ElButton>
 	</LayoutAuth>
 </template>
 
 <script setup lang="ts">
 import flatry from 'flatry';
 import { useRouter } from 'vue-router';
+import { ElButton } from 'element-plus';
 
 import LayoutAuth from '@/layouts/LayoutAuth.vue';
 import AppLogo from '@/components/icons/AppLogo.vue';
