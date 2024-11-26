@@ -21,7 +21,13 @@
 				/>
 			</div>
 
-			<template v-if="chatsStore.hasChats">
+			<template v-if="chatsStore.isChatsLoading">
+				<ChatMenuSkeleton />
+
+				<ChatMenuSkeleton />
+			</template>
+
+			<template v-else-if="chatsStore.hasChats">
 				<ChatMenu
 					v-if="recentChatList.length"
 					:chats-list="recentChatList"
@@ -73,6 +79,7 @@ import { ElText, ElMessageBox } from 'element-plus';
 import LayoutPage from '@/layouts/LayoutPage.vue';
 import NewChatButton from '@/modules/chats/components/new-chat-button/NewChatButton.vue';
 import ChatMenu from '@/modules/chats/components/chat-menu/ChatMenu.vue';
+import ChatMenuSkeleton from '@/modules/chats/components/chat-menu/ChatMenuSkeleton.vue';
 import { useChatsStore } from '@/modules/chats/stores/chatsStore';
 import { MILLISECONDS_IN_A_WEEK } from '@/config';
 import type { IChat } from '@/modules/chats/types';
