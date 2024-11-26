@@ -1,6 +1,7 @@
 <template>
 	<ElDropdown
 		placement="bottom"
+		trigger="click"
 		:popper-options="popperOption"
 	>
 		<div class="auth-user">
@@ -35,11 +36,7 @@ import { ElAvatar, ElDropdown, ElDropdownMenu, ElDropdownItem, ElText } from 'el
 
 import { IUser } from '@/types';
 
-type Props = {
-	user: IUser;
-};
-
-const { user } = defineProps<Props>();
+const { user } = defineProps<{ user: IUser }>();
 
 const emit = defineEmits<{
 	(e: 'logout'): void;
@@ -59,3 +56,9 @@ const popperOption = computed(() => {
 	};
 });
 </script>
+
+<style scoped>
+.auth-user:hover {
+	cursor: pointer;
+}
+</style>
