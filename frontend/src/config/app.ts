@@ -1,1 +1,1 @@
-export const SYSTEM_NAME = 'AI Infuse';
+export const APP_NAME = 'AI Infuse';

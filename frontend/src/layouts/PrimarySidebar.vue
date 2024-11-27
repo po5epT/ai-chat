@@ -8,7 +8,7 @@
 				<AppLogo />
 			</ElIcon>
 
-			<span class="sidebar__label sidebar-title">AI Infuse</span>
+			<span class="sidebar__label sidebar-title">{{ APP_NAME }}</span>
 
 			<ElIcon
 				v-show="!isCollapsed"
@@ -92,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElIcon, ElMenu, ElMenuItem } from 'element-plus';
 import { DArrowLeft, DArrowRight } from '@element-plus/icons-vue';
@@ -102,6 +102,8 @@ import MagicPencil from '@/components/icons/MagicPencil.vue';
 import MagicPencilFilled from '@/components/icons/MagicPencilFilled.vue';
 import Settings from '@/components/icons/Settings.vue';
 import SettingsFilled from '@/components/icons/SettingsFilled.vue';
+import { APP_NAME } from '@/config';
+import { useStorage } from '@/composables/useStorage';
 // import AlphabetBookFilled from '@/components/icons/AlphabetBookFilled.vue';
 // import AlphabetBook from '@/components/icons/AlphabetBook.vue';
 // import GraphChart from '@/components/icons/GraphChart.vue';
@@ -119,7 +121,7 @@ const currentMenuItemIs = (path: string) => {
 	return path === routeParentPath.value;
 };
 
-const isCollapsed = ref(false);
+const isCollapsed = useStorage<boolean>('isSidebarCollapsed');
 const toggleCollapse = () => {
 	isCollapsed.value = !isCollapsed.value;
 };

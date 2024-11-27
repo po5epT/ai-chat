@@ -1,6 +1,6 @@
 <template>
 	<ChatMessage
-		:username="SYSTEM_NAME"
+		:username="APP_NAME"
 		:text="message.text"
 	>
 		<template #avatar>
@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { ElAvatar } from 'element-plus';
 
-import { SYSTEM_NAME } from '@/config';
+import { APP_NAME } from '@/config';
 import AppLogo from '@/components/icons/AppLogo.vue';
 import type { IChatMessage } from '@/modules/chats/types';
 
