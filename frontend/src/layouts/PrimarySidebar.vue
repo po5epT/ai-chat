@@ -121,7 +121,7 @@ const currentMenuItemIs = (path: string) => {
 	return path === routeParentPath.value;
 };
 
-const isCollapsed = useStorage<boolean>('isSidebarCollapsed');
+const isCollapsed = useStorage('isSidebarCollapsed', false);
 const toggleCollapse = () => {
 	isCollapsed.value = !isCollapsed.value;
 };
