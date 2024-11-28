@@ -1,11 +1,23 @@
 <template>
-	<LayoutDefault>
+	<div class="wrapper">
+		<RouterView name="sidebar" />
+
 		<RouterView />
-	</LayoutDefault>
+	</div>
 </template>
 
 <script setup lang="ts">
-import { RouterView } from 'vue-router';
+import { useRouter } from 'vue-router';
 
-import LayoutDefault from '@/layouts/LayoutDefault.vue';
+import { useAuthStore } from '@/stores/auth';
+import { errorNotify } from '@/services/notify';
+
+const router = useRouter();
+const authStore = useAuthStore();
+
+authStore.authorize().catch((err) => {
+	errorNotify(err.message ?? err, { dangerouslyUseHTMLString: true });
+
+	return router.push({ name: 'logout' });
+});
 </script>
