@@ -60,7 +60,7 @@ const filePreviewStyles = computed(() => ({
 }));
 
 const isImage = computed(() => isFileImage(file));
-const fileExt = computed(() => MAP_MIME_TYPE_TO_EXT[file.type]);
+const fileExt = computed(() => MAP_MIME_TYPE_TO_EXT[file.type as keyof typeof MAP_MIME_TYPE_TO_EXT]);
 
 const handleRemove = (file: IUploadFile) => {
 	emit('delete', file);

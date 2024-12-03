@@ -60,15 +60,15 @@ import { ElMenu, ElMenuItem, ElIcon, ElText, ElDropdown, ElDropdownMenu, ElDropd
 import type { IChat } from '@/modules/chats/types';
 import DotsVertical from '@/components/icons/DotsVertical.vue';
 
-type TChatsMenuItem = Pick<IChat, 'id' | 'name'> & Partial<Omit<IChat, 'id' | 'name'>>;
+// type TChatsMenuItem = Pick<IChat, 'id' | 'name'> & Partial<Omit<IChat, 'id' | 'name'>>;
 
 defineProps<{
-	chatsList: TChatsMenuItem[];
+	chatsList: IChat[];
 }>();
 
 const emit = defineEmits<{
-	(e: 'rename:chat', chat: TChatsMenuItem): void;
-	(e: 'delete:chat', chat: TChatsMenuItem): void;
+	(e: 'rename:chat', chat: IChat): void;
+	(e: 'delete:chat', chat: IChat): void;
 }>();
 
 const route = useRoute();
@@ -84,13 +84,17 @@ const popperOption = computed(() => {
 		],
 	};
 });
-const handleRenameChat = (chat: TChatsMenuItem) => {
+const handleRenameChat = (chat: IChat) => {
 	emit('rename:chat', chat);
 };
-const handleDeleteChat = (chat: TChatsMenuItem) => {
+const handleDeleteChat = (chat: IChat) => {
 	emit('delete:chat', chat);
 };
 const openDropdown = (index: number) => {
+	if (!dropdownRefs.value?.[index]) {
+		return;
+	}
+
 	dropdownRefs.value[index].handleOpen();
 };
 const onMenuItemMouseEnter = (event: MouseEvent) => {
@@ -98,9 +102,13 @@ const onMenuItemMouseEnter = (event: MouseEvent) => {
 	target.style.zIndex = '20';
 };
 const onMenuItemMouseLeave = (index: number, event: MouseEvent) => {
+	if (!dropdownRefs.value?.[index]) {
+		return;
+	}
+
 	const target = event.target as HTMLElement;
 	target.style.zIndex = '';
 
-	dropdownRefs.value[index].handleClose();
+	dropdownRefs.value![index].handleClose();
 };
 </script>

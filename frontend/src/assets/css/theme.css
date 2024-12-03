@@ -1,4 +1,21 @@
 :root {
+  --aip-text-color-primary: #303133; /*hsla(220, 3%, 19%, 1)*/
+  --aip-text-color-regular: #606266; /*hsla(220, 3%, 39%, 1)*/
+  --aip-text-color-secondary: #909399; /*hsla(220, 4%, 58%, 1)*/
+  --aip-text-color-placeholder: #A8ABB2; /*hsla(222, 6%, 68%, 1)*/
+
+  --aip-color-primary: #409EFF; /*hsla(210, 100%, 63%, 1)*/
+  --aip-color-success: #67C23A; /*hsla(100, 54%, 49%, 1)*/
+  --aip-color-info: #909399; /*hsla(210, 100%, 63%, 1)*/
+
+  --aip-fill-color-ligth: #F5F7FA; /*hsla(216, 33%, 97%, 1)*/
+  --aip-fill-color-primary: #409EFF;  /*hsla(210, 100%, 63%, 1)*/
+  --aip-fill-color-primary-9: #ECF5FF; /*hsla(212, 100%, 96%, 1)*/
+  --aip-fill-color-success: #67C23A;  /*hsla(100, 54%, 49%, 1)*/
+  --aip-fill-color-info: #909399; /*hsla(220, 4%, 58%, 1)*/
+
+  --aip-border-color: #DCDFE6; /*hsla(222, 17%, 88%, 1)*/
+
   --ai-color-primary: #303133;
   --ai-color-secondary: #909399;
   --ai-bg-color-primary: white;

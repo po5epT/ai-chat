@@ -16,7 +16,7 @@ import flatry from 'flatry';
 import ChatMessagesList from '@/modules/chats/components/chat-messages-list/ChatMessagesList.vue';
 import ChatForm from '@/modules/chats/components/chat-form/ChatForm.vue';
 import type { IUploadFile } from '@/types';
-import type { IChatMessage } from '@/modules/chats/types';
+import type { IChat, IChatMessage } from '@/modules/chats/types';
 import { errorNotify } from '@/services/notify';
 import { createMockSystemFirstChatMessage, createNewChatMessage } from '@/modules/chats/mocks';
 import { chatMessagesRepository, chatsRepository } from '@/modules/chats/repositories';
@@ -39,7 +39,7 @@ const onSubmitMessage = async ({ text = '', files = [] }: { text: string; files:
 	isSystemGenerating.value = false;
 
 	if (chatErr) {
-		errorNotify(chatErr.message ?? chatErr);
+		errorNotify((chatErr as Error).message ?? chatErr);
 		return;
 	}
 
@@ -54,7 +54,7 @@ const onSubmitMessage = async ({ text = '', files = [] }: { text: string; files:
 	);
 
 	if (messageErr) {
-		errorNotify(messageErr.message ?? messageErr);
+		errorNotify((messageErr as Error).message ?? messageErr);
 		return;
 	}
 

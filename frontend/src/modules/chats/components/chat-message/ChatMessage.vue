@@ -59,7 +59,7 @@ const props = defineProps<{
 
 const slots = useSlots();
 
-const date = computed(() => getHumanDate(props.timestamp ?? ''));
+const date = computed(() => (props.timestamp ? getHumanDate(props.timestamp) : ''));
 const hasDate = computed(() => {
 	return !!slots.date || !!props.timestamp;
 });

@@ -28,10 +28,10 @@ const { multiple } = defineProps<{
 }>();
 
 const emit = defineEmits<{
-	(e: 'change', event: InputEvent): void;
+	(e: 'change', event: Event): void;
 }>();
 
-const onChange = (event: InputEvent) => {
+const onChange = (event: Event) => {
 	emit('change', event);
 };
 </script>

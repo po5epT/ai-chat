@@ -37,7 +37,7 @@ watchEffect(async () => {
 	isMessagesLoading.value = false;
 
 	if (err) {
-		errorNotify(err.message ?? err);
+		errorNotify((err as Error).message ?? err);
 		return;
 	}
 

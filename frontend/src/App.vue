@@ -15,7 +15,7 @@ import { errorNotify } from '@/services/notify';
 const router = useRouter();
 const authStore = useAuthStore();
 
-authStore.authorize().catch((err) => {
+authStore.authorize().catch((err: Error) => {
 	errorNotify(err.message ?? err, { dangerouslyUseHTMLString: true });
 
 	return router.push({ name: 'logout' });

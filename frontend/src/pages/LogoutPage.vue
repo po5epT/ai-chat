@@ -30,7 +30,7 @@ const logout = async () => {
 	const [err] = await flatry(authStore.logout());
 
 	if (err) {
-		errorNotify(err.message ?? err);
+		errorNotify((err as Error).message ?? err);
 		return;
 	}
 
