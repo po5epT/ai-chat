@@ -31,5 +31,6 @@ import { CirclePlus } from '@element-plus/icons-vue';
 
 .new-chat-button[disabled] {
 	cursor: not-allowed;
+	color: var(--el-text-color-disabled);
 }
 </style>

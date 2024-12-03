@@ -68,12 +68,12 @@ defineExpose({ scroll, jump });
 <style scoped>
 .messages {
 	overflow-y: auto;
-	padding: 0 var(--ai-base-h-padding);
+	padding: 0 var(--a-base-h-padding);
 }
 
 .messages__date {
 	text-align: center;
-	color: var(--ai-color-secondary);
+	color: var(--el-text-color-secondary);
 	margin-bottom: 16px;
 }
 </style>

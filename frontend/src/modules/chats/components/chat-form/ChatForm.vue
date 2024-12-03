@@ -107,7 +107,7 @@ const submitMessage = () => {
 
 <style scoped>
 .chat-form-container {
-	padding: 0 var(--ai-base-h-padding);
+	padding: 0 var(--a-base-h-padding);
 }
 .chat-form {
 	display: flex;

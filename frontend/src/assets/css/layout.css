@@ -1,10 +1,9 @@
 .wrapper {
-  max-width: var(--ai-page-width);
   height: 100vh;
   overflow: hidden;
   margin: 0 auto;
   font-weight: normal;
-  background: var(--ai-color-bg-body);
+  background: var(--el-fill-color-light);
   display: grid;
   grid-template-columns: auto 1fr;
 }
@@ -22,7 +21,7 @@
   display: grid;
   grid-template-columns: auto 1fr;
   grid-template-rows: auto 1fr;
-  background: var(--ai-color-bg-page);
+  background: var(--el-fill-color-blank);
 }
 
 .sidebar_page {

@@ -1,7 +1,7 @@
 <template>
 	<ElSkeleton
 		loading
-		style="--el-skeleton-color: var(--ai-sidebar-border-color); padding: 0 20px; margin-top: 20px"
+		style="--el-skeleton-color: var(--el-border-color-light); padding: 0 20px; margin-top: 20px"
 	>
 		<template #template>
 			<ElSkeletonItem
