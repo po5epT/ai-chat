@@ -10,7 +10,7 @@ export const isToday = (date: ConfigType) => {
 };
 
 export const isYesterday = (date: ConfigType) => {
-	return dateService(date).isToday();
+	return dateService(date).isYesterday();
 };
 
 export { dateService };
