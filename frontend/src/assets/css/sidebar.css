@@ -64,6 +64,11 @@
   transition: color 0.3s, background-color 0.3s;
 }
 
+.sidebar__item:not(.sidebar__item_subtitle):hover {
+  cursor: pointer;
+  background: var(--a-sidebar-item-active-fill-color);
+}
+
 .sidebar__item .el-icon {
   font-size: var(--a-sidebar-item-icon-size);
   margin-right: 8px;
@@ -117,6 +122,7 @@
   --el-menu-bg-color: var(--a-sidebar-item-fill-color);
   --el-menu-text-color: var(--a-sidebar-item-text-color);
   --el-menu-hover-bg-color: var(--a-sidebar-item-active-fill-color);
+  --el-menu-item-height: var(--a-sidebar-item-height);
 
   border: 0;
 }
