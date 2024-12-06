@@ -50,7 +50,7 @@ import type { IChatMessageFile } from '@/modules/chats/types';
 import type { IUploadFile } from '@/types';
 
 const emit = defineEmits<{
-	(e: 'submit:message', payload: { text: string; files: IChatMessageFile[] });
+	(e: 'submit:message', payload: { text: string; files: IChatMessageFile[] }): void;
 }>();
 
 // ---- text
@@ -66,17 +66,17 @@ const addFilesToList = (files: FileList) => {
 		...Array.from(files).filter(validateFileFormat).map(convertRawFileToUploadFile),
 	];
 };
-const onFileChange = (event: InputEvent) => {
+const onFileChange = (event: Event) => {
 	const target = event.target as HTMLInputElement;
 
-	if (target.files.length === 0) {
+	if (!target?.files?.length) {
 		return;
 	}
 
 	addFilesToList(target.files);
 };
 const onFileDrop = (event: DragEvent) => {
-	if (event.dataTransfer.files.length === 0) {
+	if (!event.dataTransfer?.files.length) {
 		return;
 	}
 
@@ -107,7 +107,7 @@ const submitMessage = () => {
 
 <style scoped>
 .chat-form-container {
-	padding: 0 var(--ai-base-h-padding);
+	padding: 0 var(--a-base-h-padding);
 }
 .chat-form {
 	display: flex;

@@ -60,7 +60,7 @@ const filePreviewStyles = computed(() => ({
 }));
 
 const isImage = computed(() => isFileImage(file));
-const fileExt = computed(() => MAP_MIME_TYPE_TO_EXT[file.type]);
+const fileExt = computed(() => MAP_MIME_TYPE_TO_EXT[file.type as keyof typeof MAP_MIME_TYPE_TO_EXT]);
 
 const handleRemove = (file: IUploadFile) => {
 	emit('delete', file);
@@ -77,9 +77,9 @@ const handleRemove = (file: IUploadFile) => {
 	height: 70px;
 	object-fit: cover;
 	overflow: hidden;
-	background-color: var(--ai-bg-color-secondary);
-	border: 1px solid var(--ai-border-color);
-	border-radius: var(--ai-border-radius-xs);
+	background-color: var(--el-fill-color-light);
+	border: 1px solid var(--el-border-color-dark);
+	border-radius: var(--el-border-radius-small);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -106,7 +106,7 @@ const handleRemove = (file: IUploadFile) => {
 	font-weight: 500;
 	font-size: 12px;
 	line-height: 20px;
-	border-radius: var(--ai-border-radius-xs);
+	border-radius: var(--el-border-radius-small);
 	padding: 0 5px;
 }
 

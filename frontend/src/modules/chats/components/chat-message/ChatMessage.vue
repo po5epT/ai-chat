@@ -59,7 +59,7 @@ const props = defineProps<{
 
 const slots = useSlots();
 
-const date = computed(() => getHumanDate(props.timestamp ?? ''));
+const date = computed(() => (props.timestamp ? getHumanDate(props.timestamp) : ''));
 const hasDate = computed(() => {
 	return !!slots.date || !!props.timestamp;
 });
@@ -84,8 +84,8 @@ const hasDate = computed(() => {
 }
 
 .message_overlay {
-	background: var(--ai-bg-color-secondary-light);
-	border-radius: 6px;
+	background: var(--el-fill-color-lighter);
+	border-radius: var(--el-border-radius-base);
 }
 
 .message__avatar {
@@ -99,7 +99,7 @@ const hasDate = computed(() => {
 }
 
 .message__date {
-	color: var(--ai-color-secondary);
+	color: var(--el-text-color-secondary);
 }
 
 .message__text {

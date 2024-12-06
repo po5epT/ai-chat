@@ -31,7 +31,7 @@ defineOptions({
 const slots = useSlots();
 const attrs = useAttrs();
 
-const text = defineModel();
+const text = defineModel({ default: '' });
 
 const hasAppendSlot = computed(() => !!slots['append']);
 </script>

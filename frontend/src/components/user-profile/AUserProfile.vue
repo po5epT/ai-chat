@@ -34,7 +34,7 @@
 import { computed } from 'vue';
 import { ElAvatar, ElDropdown, ElDropdownMenu, ElDropdownItem, ElText } from 'element-plus';
 
-import { IUser } from '@/types';
+import type { IUser } from '@/types';
 
 const { user } = defineProps<{ user: IUser }>();
 

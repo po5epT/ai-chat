@@ -28,10 +28,10 @@ const { multiple } = defineProps<{
 }>();
 
 const emit = defineEmits<{
-	(e: 'change', event: InputEvent): void;
+	(e: 'change', event: Event): void;
 }>();
 
-const onChange = (event: InputEvent) => {
+const onChange = (event: Event) => {
 	emit('change', event);
 };
 </script>
@@ -42,12 +42,12 @@ const onChange = (event: InputEvent) => {
 }
 
 .ai-input-file__icon {
-	color: var(--ai-color-primary);
+	color: var(--el-text-color-primary);
 	transition: color 0.3s;
 }
 
 .ai-input-file__icon:hover {
-	color: var(--ai-color-secondary);
+	color: var(--el-text-color-secondary);
 	cursor: pointer;
 }
 </style>

@@ -14,12 +14,11 @@
 		</template>
 
 		<template #sidebar>
-			<div class="sidebar__item">
-				<NewChatButton
-					:disabled="isCreateChatDisabled"
-					@click="onCreateChat"
-				/>
-			</div>
+			<NewChatButton
+				:disabled="isCreateChatDisabled"
+				class="sidebar__item"
+				@click="onCreateChat"
+			/>
 
 			<template v-if="chatsStore.isChatsLoading">
 				<ChatMenuSkeleton />

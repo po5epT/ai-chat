@@ -1,22 +1,30 @@
 <template>
-	<button class="new-chat-button">
-		<ElIcon>
-			<CirclePlus />
-		</ElIcon>
+	<div
+		class="new-chat-button"
+		:class="{ 'new-chat-button_disabled': disabled }"
+	>
+		<button :disabled="disabled">
+			<ElIcon>
+				<CirclePlus />
+			</ElIcon>
 
-		<span>
-			<slot>New chat</slot>
-		</span>
-	</button>
+			<span>
+				<slot>New chat</slot>
+			</span>
+		</button>
+	</div>
 </template>
 
 <script setup lang="ts">
 import { ElIcon } from 'element-plus';
 import { CirclePlus } from '@element-plus/icons-vue';
+
+type Props = { disabled?: boolean };
+const { disabled = false } = defineProps<Props>();
 </script>
 
 <style scoped>
-.new-chat-button {
+.new-chat-button button {
 	font-weight: 500;
 	background: none;
 	border: none;
@@ -25,11 +33,14 @@ import { CirclePlus } from '@element-plus/icons-vue';
 	padding: 0;
 }
 
-.new-chat-button:hover {
+.new-chat-button button:hover {
 	cursor: pointer;
 }
 
-.new-chat-button[disabled] {
+.new-chat-button_disabled:hover,
+.new-chat-button_disabled button[disabled] {
 	cursor: not-allowed;
+	color: var(--el-text-color-disabled);
+	background: none;
 }
 </style>

@@ -50,13 +50,16 @@ const { scroll, jump } = useScroll('chatBottomRef');
 const emptyChatSystemMessage = {} as IChatMessage;
 
 const groupedMessagesList = computed<Record<string, IChatMessage[]>>(() => {
-	return messagesList.reduce((acc, chatMessage) => {
-		const humanDate = getMessageDate(chatMessage.timestamp);
-		acc[humanDate] ??= [];
-		acc[humanDate].push(chatMessage);
+	return messagesList.reduce(
+		(acc, chatMessage) => {
+			const humanDate = getMessageDate(chatMessage.timestamp);
+			acc[humanDate] ??= [];
+			acc[humanDate].push(chatMessage);
 
-		return acc;
-	}, {});
+			return acc;
+		},
+		{} as Record<string, IChatMessage[]>,
+	);
 });
 
 defineExpose({ scroll, jump });
@@ -65,12 +68,12 @@ defineExpose({ scroll, jump });
 <style scoped>
 .messages {
 	overflow-y: auto;
-	padding: 0 var(--ai-base-h-padding);
+	padding: 0 var(--a-base-h-padding);
 }
 
 .messages__date {
 	text-align: center;
-	color: var(--ai-color-secondary);
+	color: var(--el-text-color-secondary);
 	margin-bottom: 16px;
 }
 </style>

@@ -38,10 +38,10 @@ defineProps<{ message: IChatMessage }>();
 .system-avatar {
 	--el-avatar-bg-color: transparent;
 
-	border: 1px solid var(--ai-border-color);
+	border: 1px solid var(--el-border-color-dark);
 }
 
 .is-generating {
-	color: var(--ai-color-secondary);
+	color: var(--el-text-color-secondary);
 }
 </style>

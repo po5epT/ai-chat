@@ -1,45 +1,42 @@
-:root {
-  --ai-sidebar-width: 266px;
-  --ai-sidebar-collapsed-width: 58px;
-  --ai-sidebar-border-color: #E4E7ED;
-  --ai-sidebar-item-h-padding: var(--ai-base-h-padding);
-  --ai-sidebar-item-color: var(--ai-color-primary);
-  --ai-sidebar-item-bg-color: var(--ai-bg-color-secondary);
-  --ai-sidebar-item-active-bg-color: #EBEDF0;
-  --ai-sidebar-item-active-color: var(--ai-color-primary-blue);
-  --ai-sidebar-item-height: 48px;
-  --ai-sidebar-item-icon-size: 18px;
-  --ai-sidebar-toggle-color: #8f9fba;
-}
-
 .sidebar {
-  --el-menu-icon-width: var(--ai-sidebar-item-icon-size);
+  --a-primary-sidebar-width: 178px;
+  --a-secondary-sidebar-width: 266px;
+  --a-sidebar-border-color: var(--el-border-color-light);
+  --a-sidebar-item-h-padding: var(--a-base-h-padding);
+  --a-sidebar-item-text-color: var(--el-text-color-primary);
+  --a-sidebar-item-fill-color: var(--el-fill-color-light);
+  --a-sidebar-item-active-text-color: var(--el-color-primary);
+  --a-sidebar-item-active-fill-color: var(--el-fill-color-dark);
+  --a-sidebar-item-icon-size: 18px;
+  --a-sidebar-item-height: 48px;
+  --a-sidebar-toggle-icon-color: #8f9fba;
+
+  --el-menu-icon-width: var(--a-sidebar-item-icon-size);
 
   height: 100%;
   display: flex;
   flex-direction: column;
-  width: var(--ai-sidebar-width);
-  border-right: 1px solid var(--ai-sidebar-border-color);
-  background: var(--ai-sidebar-item-bg-color);
+  width: var(--a-secondary-sidebar-width);
+  border-right: 1px solid var(--a-sidebar-border-color);
+  background: var(--a-sidebar-item-fill-color);
   transition: width 0.25s;
 }
 
 .sidebar_main {
-  --ai-sidebar-item-color: white;
-  --ai-sidebar-item-bg-color: #0e203e;
-  --ai-sidebar-item-active-bg-color: #133264;
-  --ai-sidebar-item-active-color: #2b88e7;
-  --ai-sidebar-width: 178px;
+  --a-sidebar-item-fill-color: #0e203e;
+  --a-sidebar-item-text-color: #ffffff;
+  --a-sidebar-item-active-text-color: #2B88E7;
+  --a-sidebar-item-active-fill-color: #133264;
+  width: var(--a-primary-sidebar-width);
 
   border-right: 0;
 }
 
 .sidebar_collapsed {
-  width: var(--ai-sidebar-collapsed-width);
+  --a-primary-sidebar-width: 58px;
 }
 
 .sidebar_collapsed .sidebar__item {
-  --ai-sidebar-item-h-padding: 0;
   justify-content: center;
 }
 
@@ -60,20 +57,25 @@
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  padding: 0 var(--ai-sidebar-item-h-padding);
-  color: var(--ai-sidebar-item-color);
-  background: var(--ai-sidebar-item-bg-color);
-  height: var(--ai-sidebar-item-height);
+  padding: 0 var(--a-sidebar-item-h-padding);
+  color: var(--a-sidebar-item-text-color);
+  background: var(--a-sidebar-item-fill-color);
+  height: var(--a-sidebar-item-height);
   transition: color 0.3s, background-color 0.3s;
 }
 
+.sidebar__item:not(.sidebar__item_subtitle):hover {
+  cursor: pointer;
+  background: var(--a-sidebar-item-active-fill-color);
+}
+
 .sidebar__item .el-icon {
-  font-size: var(--ai-sidebar-item-icon-size);
+  font-size: var(--a-sidebar-item-icon-size);
   margin-right: 8px;
 }
 
 .sidebar__item .logo {
-  --ai-sidebar-item-icon-size: 26px;
+  --a-sidebar-item-icon-size: 26px;
 }
 
 .sidebar-title {
@@ -88,9 +90,9 @@
 }
 
 .sidebar__item_subtitle {
-  --ai-sidebar-item-height: 32px;
+  --a-sidebar-item-height: 32px;
 
-  color: var(--ai-color-secondary);
+  color: var(--el-text-color-secondary);
 }
 
 .sidebar__item_toggle {
@@ -99,7 +101,7 @@
 
 .sidebar__item .sidebar__toggle {
   margin: 0 0 0 auto;
-  color: var(--ai-sidebar-toggle-color);
+  color: var(--a-sidebar-toggle-icon-color);
   transition: color 0.3s;
 }
 
@@ -117,16 +119,18 @@
 
 /* Override element-plus styles */
 .sidebar .el-menu {
-  --el-menu-bg-color: var(--ai-sidebar-item-bg-color);
-  --el-menu-text-color: var(--ai-sidebar-item-color);
-  --el-menu-hover-bg-color: var(--ai-sidebar-item-active-bg-color);
+  --el-menu-bg-color: var(--a-sidebar-item-fill-color);
+  --el-menu-text-color: var(--a-sidebar-item-text-color);
+  --el-menu-hover-bg-color: var(--a-sidebar-item-active-fill-color);
+  --el-menu-item-height: var(--a-sidebar-item-height);
 
   border: 0;
 }
 
 .sidebar .el-menu-item.is-active {
-  background: var(--ai-sidebar-item-active-bg-color);
   font-weight: 500;
+  color: var(--a-sidebar-item-active-text-color);
+  background: var(--a-sidebar-item-active-fill-color);
 }
 
 .sidebar .el-menu-item .el-icon:not(.menu-icon) {
@@ -140,7 +144,7 @@
   top: 50%;
   right: 0;
   transform: translateY(-50%);
-  color: var(--ai-color-primary);
+  color: var(--el-text-color-primary);
   opacity: 0;
   transition: opacity 0.3s;
 }
