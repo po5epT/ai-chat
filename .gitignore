@@ -1,5 +1,8 @@
 **/venv/
 .env
+deployment/
+**WIP
+**__pycache__
 
 # Logs
 logs
