@@ -14,7 +14,10 @@
 				@dragover.prevent
 				@drop.prevent="onFileDrop"
 			>
-				<template #append>
+				<template
+					v-if="isFilesAllowed"
+					#append
+				>
 					<AInputFile
 						multiple
 						@change="onFileChange"
@@ -49,6 +52,9 @@ import { convertRawFileToUploadFile, revokeObjectUrl, validateFileFormat } from 
 import type { IChatMessageFile } from '@/modules/chats/types';
 import type { IUploadFile } from '@/types';
 
+type Props = { isFilesAllowed?: boolean };
+const { isFilesAllowed = false } = defineProps<Props>();
+
 const emit = defineEmits<{
 	(e: 'submit:message', payload: { text: string; files: IChatMessageFile[] }): void;
 }>();
@@ -67,6 +73,10 @@ const addFilesToList = (files: FileList) => {
 	];
 };
 const onFileChange = (event: Event) => {
+	if (!isFilesAllowed) {
+		return;
+	}
+
 	const target = event.target as HTMLInputElement;
 
 	if (!target?.files?.length) {
@@ -76,6 +86,10 @@ const onFileChange = (event: Event) => {
 	addFilesToList(target.files);
 };
 const onFileDrop = (event: DragEvent) => {
+	if (!isFilesAllowed) {
+		return;
+	}
+
 	if (!event.dataTransfer?.files.length) {
 		return;
 	}

@@ -1,11 +1,13 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 
+import type { ILastEvaluatedKey } from '@/services/api';
 import type { IChat } from '@/modules/chats/types';
 import { chatsRepository } from '@/modules/chats/repositories';
 
 export const useChatsStore = defineStore('chats', () => {
 	const isChatsLoaded = ref(false);
+	const lastEvaluatedKey = ref<ILastEvaluatedKey | null>(null);
 	const chatList = ref<IChat[]>([]);
 	const hasChats = computed(() => chatList.value.length > 0);
 	const mapChatIdToChat = computed(() => {
@@ -19,7 +21,9 @@ export const useChatsStore = defineStore('chats', () => {
 		}
 
 		isChatsLoading.value = true;
-		chatList.value = await chatsRepository.getChats();
+		const { data, last_evaluated_key } = await chatsRepository.getChats();
+		chatList.value = data;
+		lastEvaluatedKey.value = last_evaluated_key;
 		isChatsLoading.value = false;
 		isChatsLoaded.value = true;
 	};

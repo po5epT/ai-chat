@@ -5,7 +5,10 @@
 		:is-system-generating="isSystemGenerating"
 	/>
 
-	<ChatForm @submit:message="onSubmitMessage" />
+	<ChatForm
+		is-files-allowed
+		@submit:message="onSubmitMessage"
+	/>
 </template>
 
 <script setup lang="ts">
@@ -16,10 +19,11 @@ import flatry from 'flatry';
 import type { IChat, IChatMessage, IChatMessageFile } from '@/modules/chats/types';
 import ChatMessagesList from '@/modules/chats/components/chat-messages-list/ChatMessagesList.vue';
 import ChatForm from '@/modules/chats/components/chat-form/ChatForm.vue';
-import { createMockSystemChatMessage, createNewChatMessage } from '@/modules/chats/mocks';
+import { createMockSystemChatMessage } from '@/modules/chats/mocks';
 import { chatMessagesRepository } from '@/modules/chats/repositories';
 import { useChatsStore } from '@/modules/chats/stores/chatsStore';
 import { errorNotify } from '@/services/notify';
+import type { ILastEvaluatedKey } from '@/services/api';
 
 const route = useRoute();
 const chatsStore = useChatsStore();
@@ -29,11 +33,12 @@ const messagesListRef = useTemplateRef<InstanceType<typeof ChatMessagesList>>('m
 const messagesList = ref<IChatMessage[]>([]);
 const isMessagesLoading = ref(false);
 const isSystemGenerating = ref(false);
+const lastEvaluatedKey = ref<ILastEvaluatedKey | null>(null);
 
 watchEffect(async () => {
 	messagesList.value = [];
 	isMessagesLoading.value = true;
-	const [err, messages] = await flatry(chatMessagesRepository.getMessages(chatId.value));
+	const [err, { data, last_evaluated_key }] = await flatry(chatMessagesRepository.getMessages(chatId.value));
 	isMessagesLoading.value = false;
 
 	if (err) {
@@ -41,28 +46,25 @@ watchEffect(async () => {
 		return;
 	}
 
-	messagesList.value = messages;
+	messagesList.value = data;
+	lastEvaluatedKey.value = last_evaluated_key;
 	chatsStore.setCurrentChatById(chatId.value);
 	await nextTick();
 	messagesListRef.value?.jump();
 });
 
 const onSubmitMessage = ({ text, files }: { text: string; files: IChatMessageFile[] }) => {
-	const newChatMessage = createNewChatMessage(chatId.value, { text, files });
-	messagesList.value.push(newChatMessage);
-
-	nextTick().then(() => messagesListRef.value?.scroll());
+	const newChatMessageData = new FormData();
+	newChatMessageData.append('chat_id', chatId.value);
+	newChatMessageData.append('text', text);
+	files.forEach((file, index) => {
+		newChatMessageData.append('file' + ++index, file.rawFile as File);
+	});
 
 	isSystemGenerating.value = true;
 
-	// const formData = new FormData();
-	// formData.append('text', text);
-	// files.forEach((file, index) => {
-	// 	formData.append('file' + ++index, file.rawFile as File);
-	// });
-
 	chatMessagesRepository
-		.createMessage(newChatMessage)
+		.createMessage(newChatMessageData)
 		.then((createdChatMessage) => {
 			messagesList.value.splice(messagesList.value.length - 1, 1, createdChatMessage);
 			nextTick().then(() => messagesListRef.value?.scroll());

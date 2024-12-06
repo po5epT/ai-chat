@@ -1,5 +1,6 @@
 export type IModelConfig = Partial<{
 	name: string;
+	family: string;
 	max_tokens: number;
 	temperature: number;
 	top_p: number;

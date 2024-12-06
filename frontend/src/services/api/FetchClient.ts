@@ -20,7 +20,13 @@ export class FetchClient implements IApiClient {
 	async get<T>(url: string): Promise<T> {
 		const response = await fetch(`${this.baseURL}${url}`);
 
-		return await response.json();
+		const jsonResponse = await response.json();
+
+		if (response.status !== 200) {
+			throw new Error(jsonResponse.api_error);
+		}
+
+		return jsonResponse;
 	}
 
 	async post<T>(url: string, data: any): Promise<T> {
@@ -30,7 +36,13 @@ export class FetchClient implements IApiClient {
 			body: this.getBodyByData(data),
 		});
 
-		return await response.json();
+		const jsonResponse = await response.json();
+
+		if (response.status !== 200) {
+			throw new Error(jsonResponse.api_error);
+		}
+
+		return jsonResponse;
 	}
 
 	async put<T>(url: string, data: any): Promise<T> {
@@ -40,7 +52,13 @@ export class FetchClient implements IApiClient {
 			body: this.getBodyByData(data),
 		});
 
-		return await response.json();
+		const jsonResponse = await response.json();
+
+		if (response.status !== 200) {
+			throw new Error(jsonResponse.api_error);
+		}
+
+		return jsonResponse;
 	}
 
 	async patch<T>(url: string, data: any): Promise<T> {
@@ -50,7 +68,13 @@ export class FetchClient implements IApiClient {
 			body: this.getBodyByData(data),
 		});
 
-		return await response.json();
+		const jsonResponse = await response.json();
+
+		if (response.status !== 200) {
+			throw new Error(jsonResponse.api_error);
+		}
+
+		return jsonResponse;
 	}
 
 	async delete<T>(url: string): Promise<T> {
@@ -58,7 +82,13 @@ export class FetchClient implements IApiClient {
 			method: 'DELETE',
 		});
 
-		return await response.json();
+		const jsonResponse = await response.json();
+
+		if (response.status !== 200) {
+			throw new Error(jsonResponse.api_error);
+		}
+
+		return jsonResponse;
 	}
 }
 

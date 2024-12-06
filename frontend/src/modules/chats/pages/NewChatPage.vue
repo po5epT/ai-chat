@@ -30,12 +30,10 @@ const messagesList = ref<IChatMessage[]>([createMockSystemFirstChatMessage()]);
 const isSystemGenerating = ref(false);
 
 const onSubmitMessage = async ({ text = '', files = [] }: { text: string; files: IUploadFile[] }) => {
-	const newChat = { first_prompt: text };
-	const newChatMessage = createNewChatMessage('newChatId', { text, files });
-	messagesList.value.push(newChatMessage);
+	const newChatData = { first_prompt: text };
 
 	isSystemGenerating.value = true;
-	const [chatErr, chat] = await flatry(chatsRepository.createChat(newChat));
+	const [chatErr, chat] = await flatry(chatsRepository.createChat(newChatData));
 	isSystemGenerating.value = false;
 
 	if (chatErr) {
@@ -43,15 +41,10 @@ const onSubmitMessage = async ({ text = '', files = [] }: { text: string; files:
 		return;
 	}
 
-	// TODO Remove when API is presented
-	chat.id = +new Date() + '';
-
-	const [messageErr] = await flatry(
-		chatMessagesRepository.createMessage({
-			...newChatMessage,
-			chat_id: chat.id,
-		}),
-	);
+	const newChatMessageData = new FormData();
+	newChatMessageData.append('chat_id', chat.id);
+	newChatMessageData.append('text', text);
+	const [messageErr] = await flatry(chatMessagesRepository.createMessage(newChatMessageData));
 
 	if (messageErr) {
 		errorNotify((messageErr as Error).message ?? messageErr);

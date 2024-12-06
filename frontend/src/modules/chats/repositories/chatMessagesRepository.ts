@@ -1,52 +1,39 @@
-import { fetchApi, type IApiClient } from '@/services/api';
-import { delay } from '@/utils';
+import type { IApiClient, IResponse } from '@/services/api';
 import type { IChat, IChatMessage } from '@/modules/chats/types';
-import {
-	createMockChatMessage,
-	createMockSystemChatMessage,
-	createMockSystemFirstChatMessage,
-} from '@/modules/chats/mocks';
+import { fetchApi } from '@/services/api';
 
-type TGetMessagesPayload = Partial<{
-	start: string;
-	limit: string;
-}>;
+type TGetMessagesPayload = {
+	start_key?: string;
+	limit?: string;
+};
+
+type TCreateMessagePayload = Omit<IChatMessage, 'id' | 'user_id'>;
 
 const createChatMessagesRepository = (apiClient: IApiClient) => {
-	const baseURL = '/chats';
-	const defaultStart = '0';
+	const baseURL = '/messages';
+	const defaultStartKey = '';
 	const defaultLimit = '50';
 
-	const getMessages = async (chatId: IChat['id'], payload: TGetMessagesPayload = {}): Promise<IChatMessage[]> => {
+	const getMessages = async (
+		chatId: IChat['id'],
+		payload: TGetMessagesPayload = {},
+	): Promise<IResponse<IChatMessage[]>> => {
 		const query = {
 			chat_id: chatId,
-			start: payload.start ?? defaultStart,
+			start_key: payload.start_key ?? defaultStartKey,
 			limit: payload.limit ?? defaultLimit,
 		};
 
-		const searchParams = new URLSearchParams(query);
+		const searchParams = new URLSearchParams(query).toString();
 
-		await delay(700);
-		//return apiClient.get<IChatMessage[]>(`${baseURL}?${searchParams.toString()}`);
-		return Promise.resolve([
-			createMockSystemFirstChatMessage(),
-			createMockChatMessage(),
-			createMockSystemChatMessage(),
-			createMockChatMessage(),
-			createMockSystemChatMessage(),
-			createMockChatMessage(),
-			createMockSystemChatMessage(),
-		]);
+		return apiClient.get<IResponse<IChatMessage[]>>(`${baseURL}?${searchParams}`);
 	};
 
-	const createMessage = async (payload: FormData | IChatMessage): Promise<IChatMessage> => {
-		await delay(350);
-		return payload as IChatMessage;
-
-		// return apiClient.post<IChatMessage | FormData>(baseURL, payload);
+	const createMessage = async (payload: FormData | TCreateMessagePayload): Promise<IChatMessage> => {
+		return apiClient.post<IChatMessage>(baseURL, payload);
 	};
 
-	const updateMessage = async (id: IChatMessage['id'], payload: Partial<IChatMessage>): Promise<IChatMessage> => {
+	const updateMessage = async (id: IChatMessage['id'], payload: IChatMessage): Promise<IChatMessage> => {
 		return apiClient.patch<IChatMessage>(`${baseURL}/${id}`, payload);
 	};
 
