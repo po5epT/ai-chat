@@ -11,7 +11,7 @@
 				:key="message.id"
 			>
 				<ChatSystemMessage
-					v-if="message.user_id === 'system'"
+					v-if="message.user_id === SYSTEM_USER_ID"
 					:message="message"
 				/>
 
@@ -29,12 +29,14 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+
 import ChatUserMessage from '@/modules/chats/components/chat-message/ChatUserMessage.vue';
 import ChatSystemMessage from '@/modules/chats/components/chat-message/ChatSystemMessage.vue';
 import type { IChatMessage } from '@/modules/chats/types';
 import { useScroll } from '@/composables/useScroll';
 import { getMessageDate } from '@/modules/chats/utils/date';
-import { computed } from 'vue';
+import { SYSTEM_USER_ID } from '@/config';
 
 type Props = { messagesList: IChatMessage[] };
 

@@ -24,13 +24,12 @@ import flatry from 'flatry';
 
 import type { IChat, IChatMessage, IChatMessageFile } from '@/modules/chats/types';
 import ChatMessagesList from '@/modules/chats/components/chat-messages-list/ChatMessagesList.vue';
+import ChatSystemMessage from '@/modules/chats/components/chat-message/ChatSystemMessage.vue';
 import ChatForm from '@/modules/chats/components/chat-form/ChatForm.vue';
-import { createMockSystemChatMessage } from '@/modules/chats/mocks';
 import { chatMessagesRepository } from '@/modules/chats/repositories';
 import { useChatsStore } from '@/modules/chats/stores/chatsStore';
 import { errorNotify } from '@/services/notify';
 import type { ILastEvaluatedKey } from '@/services/api';
-import ChatSystemMessage from '@/modules/chats/components/chat-message/ChatSystemMessage.vue';
 
 const route = useRoute();
 const chatsStore = useChatsStore();
@@ -63,22 +62,37 @@ watchEffect(async () => {
 
 const onSubmitMessage = ({ text, files }: { text: string; files: IChatMessageFile[] }) => {
 	const newChatMessageData = {
+		id: 'new',
 		chat_id: chatId.value,
+		user_id: 'asdasd', // TODO refactor
+		timestamp: +new Date(),
 		text,
 		files,
-		timestamp: +new Date(),
 	};
 
 	isSystemGenerating.value = true;
 
+	messagesList.value.push(newChatMessageData);
+	nextTick().then(() => messagesListRef.value?.scroll());
+
 	chatMessagesRepository
 		.createMessage(newChatMessageData)
 		.then((createdChatMessage) => {
-			messagesList.value.splice(messagesList.value.length - 1, 1, createdChatMessage);
-			nextTick().then(() => messagesListRef.value?.scroll());
-		})
-		.then(() => {
-			messagesList.value.push(createMockSystemChatMessage());
+			const { requested_message_id, ...restData } = createdChatMessage;
+
+			messagesList.value = messagesList.value.map((message) => {
+				if (message.id === 'new') {
+					return {
+						...message,
+						id: requested_message_id,
+					};
+				}
+
+				return message;
+			});
+
+			messagesList.value.push(restData);
+
 			nextTick().then(() => messagesListRef.value?.scroll());
 		})
 		.catch((err) => errorNotify(err.message ?? err))

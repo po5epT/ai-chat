@@ -49,9 +49,11 @@ const onSubmitMessage = async ({ text = '' }: { text: string }) => {
 	}
 
 	const newChatMessageData = {
+		id: 'new',
 		chat_id: chat.id,
-		text,
+		user_id: 'asdasd', // TODO refactor
 		timestamp: +new Date(),
+		text,
 	};
 
 	const [messageErr] = await flatry(chatMessagesRepository.createMessage(newChatMessageData));

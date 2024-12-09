@@ -11,7 +11,7 @@ export class FetchService implements IApiService {
 		this.baseURL = baseURL;
 		this.config = config;
 
-		config.headers = config.headers ?? { 'Content-type': 'application/json' };
+		config.headers = config.headers ?? { 'Content-Type': 'application/json' };
 	}
 
 	onRequest(callback: RequestCallback) {
@@ -39,7 +39,7 @@ export class FetchService implements IApiService {
 	}
 
 	private transformBody(data: any, config: RequestInit) {
-		if ((config.headers as any)?.['Content-type'] === 'application/json') {
+		if ((config.headers as any)?.['Content-Type'] === 'application/json') {
 			return JSON.stringify(data);
 		}
 

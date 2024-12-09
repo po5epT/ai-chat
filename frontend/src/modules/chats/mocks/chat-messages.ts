@@ -1,4 +1,5 @@
 import type { IChat, IChatMessage, IChatMessageFile, TCreateChatMessageParams } from '@/modules/chats/types';
+import { SYSTEM_USER_ID } from '@/config';
 
 const randomDate = (start: number, end: number) => {
 	return new Date(start + Math.random() * (end - start));
@@ -48,7 +49,7 @@ export const createMockSystemChatMessage = (text?: string): IChatMessage => {
 	return {
 		id: 'message_' + counter,
 		chat_id: 'chat_id',
-		user_id: 'system',
+		user_id: SYSTEM_USER_ID,
 		timestamp: +randomMessageDate(),
 		text: text ?? 'Some system message ' + counter,
 		files: [],
