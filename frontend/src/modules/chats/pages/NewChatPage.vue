@@ -2,8 +2,14 @@
 	<ChatMessagesList
 		ref="messagesListRef"
 		:messages-list="messagesList"
-		:is-system-generating="isSystemGenerating"
-	/>
+	>
+		<template #generating>
+			<ChatSystemMessage
+				v-if="isSystemGenerating"
+				:message="emptyChatSystemMessage"
+			/>
+		</template>
+	</ChatMessagesList>
 
 	<ChatForm @submit:message="onSubmitMessage" />
 </template>
@@ -20,6 +26,7 @@ import { errorNotify } from '@/services/notify';
 import { createMockSystemFirstChatMessage } from '@/modules/chats/mocks';
 import { chatMessagesRepository, chatsRepository } from '@/modules/chats/repositories';
 import { useChatsStore } from '@/modules/chats/stores/chatsStore';
+import ChatSystemMessage from '@/modules/chats/components/chat-message/ChatSystemMessage.vue';
 
 const router = useRouter();
 const chatsStore = useChatsStore();
@@ -27,6 +34,7 @@ chatsStore.resetCurrentChat();
 
 const messagesList = ref<IChatMessage[]>([createMockSystemFirstChatMessage()]);
 const isSystemGenerating = ref(false);
+const emptyChatSystemMessage = {} as IChatMessage;
 
 const onSubmitMessage = async ({ text = '' }: { text: string }) => {
 	const newChatData = { first_prompt: text };

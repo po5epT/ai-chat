@@ -22,10 +22,7 @@
 			</template>
 		</template>
 
-		<ChatSystemMessage
-			v-if="isSystemGenerating"
-			:message="emptyChatSystemMessage"
-		/>
+		<slot name="generating" />
 
 		<div ref="chatBottomRef"></div>
 	</section>
@@ -39,15 +36,11 @@ import { useScroll } from '@/composables/useScroll';
 import { getMessageDate } from '@/modules/chats/utils/date';
 import { computed } from 'vue';
 
-type Props = {
-	messagesList: IChatMessage[];
-	isSystemGenerating?: boolean;
-};
+type Props = { messagesList: IChatMessage[] };
 
-const { messagesList, isSystemGenerating = false } = defineProps<Props>();
+const { messagesList } = defineProps<Props>();
 
 const { scroll, jump } = useScroll('chatBottomRef');
-const emptyChatSystemMessage = {} as IChatMessage;
 
 const groupedMessagesList = computed<Record<string, IChatMessage[]>>(() => {
 	return messagesList.reduce(

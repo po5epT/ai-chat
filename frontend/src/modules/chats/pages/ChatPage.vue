@@ -2,8 +2,14 @@
 	<ChatMessagesList
 		ref="messagesListRef"
 		:messages-list="messagesList"
-		:is-system-generating="isSystemGenerating"
-	/>
+	>
+		<template #generating>
+			<ChatSystemMessage
+				v-if="isSystemGenerating"
+				:message="emptyChatSystemMessage"
+			/>
+		</template>
+	</ChatMessagesList>
 
 	<ChatForm
 		is-files-allowed
@@ -24,6 +30,7 @@ import { chatMessagesRepository } from '@/modules/chats/repositories';
 import { useChatsStore } from '@/modules/chats/stores/chatsStore';
 import { errorNotify } from '@/services/notify';
 import type { ILastEvaluatedKey } from '@/services/api';
+import ChatSystemMessage from '@/modules/chats/components/chat-message/ChatSystemMessage.vue';
 
 const route = useRoute();
 const chatsStore = useChatsStore();
@@ -33,6 +40,7 @@ const messagesListRef = useTemplateRef<InstanceType<typeof ChatMessagesList>>('m
 const messagesList = ref<IChatMessage[]>([]);
 const isMessagesLoading = ref(false);
 const isSystemGenerating = ref(false);
+const emptyChatSystemMessage = {} as IChatMessage;
 const lastEvaluatedKey = ref<ILastEvaluatedKey | null>(null);
 
 watchEffect(async () => {
