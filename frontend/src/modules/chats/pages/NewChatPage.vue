@@ -29,7 +29,7 @@ chatsStore.resetCurrentChat();
 const messagesList = ref<IChatMessage[]>([createMockSystemFirstChatMessage()]);
 const isSystemGenerating = ref(false);
 
-const onSubmitMessage = async ({ text = '', files = [] }: { text: string; files: IUploadFile[] }) => {
+const onSubmitMessage = async ({ text = '' }: { text: string }) => {
 	const newChatData = { first_prompt: text };
 
 	isSystemGenerating.value = true;

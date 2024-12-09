@@ -1,15 +1,16 @@
-import type { IApiClient, IResponse } from '@/services/api';
-import type { IChat, IChatMessage } from '@/modules/chats/types';
-import { fetchApi } from '@/services/api';
+import type { IApiService, IResponse } from '@/services/api';
+import type { IChat, IChatMessage, IChatMessageFile } from '@/modules/chats/types';
+import { apiService } from '@/services/api';
+import { createFormDataFromObject } from '@/utils/formData';
 
 type TGetMessagesPayload = {
 	start_key?: string;
 	limit?: string;
 };
 
-type TCreateMessagePayload = Omit<IChatMessage, 'id' | 'user_id'>;
+type TCreateMessagePayload = Omit<IChatMessage, 'id' | 'user_id' | 'files'>;
 
-const createChatMessagesRepository = (apiClient: IApiClient) => {
+const createChatMessagesRepository = (apiService: IApiService) => {
 	const baseURL = '/messages';
 	const defaultStartKey = '';
 	const defaultLimit = '50';
@@ -26,19 +27,40 @@ const createChatMessagesRepository = (apiClient: IApiClient) => {
 
 		const searchParams = new URLSearchParams(query).toString();
 
-		return apiClient.get<IResponse<IChatMessage[]>>(`${baseURL}?${searchParams}`);
+		return apiService.get<IResponse<IChatMessage[]>>(`${baseURL}?${searchParams}`);
 	};
 
-	const createMessage = async (payload: FormData | TCreateMessagePayload): Promise<IChatMessage> => {
-		return apiClient.post<IChatMessage>(baseURL, payload);
+	const createMessage = async (
+		payload: TCreateMessagePayload,
+		files: IChatMessageFile[] = [],
+	): Promise<IChatMessage> => {
+		const headers = new Headers({ 'Content-Type': 'multipart/form-data' });
+		const formData = createFormDataFromObject(payload);
+
+		files.forEach((file) => {
+			formData.append('files[]', file.rawFile!, file.name);
+		});
+
+		return apiService.post<IChatMessage>(baseURL, formData, { headers });
 	};
 
-	const updateMessage = async (id: IChatMessage['id'], payload: IChatMessage): Promise<IChatMessage> => {
-		return apiClient.patch<IChatMessage>(`${baseURL}/${id}`, payload);
+	const updateMessage = async (
+		id: IChatMessage['id'],
+		payload: IChatMessage,
+		files: IChatMessageFile[] = [],
+	): Promise<IChatMessage> => {
+		const headers = new Headers({ 'Content-Type': 'multipart/form-data' });
+		const formData = createFormDataFromObject(payload);
+
+		files.forEach((file) => {
+			formData.append('files[]', file.rawFile!, file.name);
+		});
+
+		return apiService.patch<IChatMessage>(`${baseURL}/${id}`, formData, { headers });
 	};
 
 	const deleteMessage = async (id: IChatMessage['id']): Promise<void> => {
-		return apiClient.delete<void>(`${baseURL}/${id}`);
+		return apiService.delete<void>(`${baseURL}/${id}`);
 	};
 
 	return {
@@ -49,4 +71,4 @@ const createChatMessagesRepository = (apiClient: IApiClient) => {
 	};
 };
 
-export const chatMessagesRepository = createChatMessagesRepository(fetchApi);
+export const chatMessagesRepository = createChatMessagesRepository(apiService);
