@@ -19,6 +19,11 @@ export default defineConfig({
 				target: 'https://p1oq5lij1c.execute-api.eu-central-1.amazonaws.com',
 				changeOrigin: true,
 			},
+
+			'/auth': {
+				target: 'https://p1oq5lij1c.execute-api.eu-central-1.amazonaws.com',
+				changeOrigin: true,
+			},
 		},
 	},
 });
