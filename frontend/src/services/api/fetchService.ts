@@ -1,10 +1,11 @@
-import type { IApiService, RequestCallback, ResponseCallback } from '@/services/api';
+import type { IApiService, RequestCallback, ResponseCallback, ResponseErrorCallback } from '@/services/api';
 
 export class FetchService implements IApiService {
 	private readonly baseURL: string;
 	private readonly config: RequestInit;
 	private readonly requestCallbacks: RequestCallback[] = [];
-	private readonly responseCallbacks: ResponseCallback[] = [];
+	private responseCallback: ResponseCallback = () => {};
+	private responseErrorCallback: ResponseErrorCallback = () => {};
 
 	constructor(baseURL: string, config: RequestInit = {}) {
 		this.baseURL = baseURL;
@@ -26,7 +27,15 @@ export class FetchService implements IApiService {
 			return;
 		}
 
-		this.responseCallbacks.push(callback);
+		this.responseCallback = callback;
+	}
+
+	onResponseError(callback: ResponseErrorCallback) {
+		if (typeof callback !== 'function') {
+			return;
+		}
+
+		this.responseErrorCallback = callback;
 	}
 
 	private transformBody(data: any, config: RequestInit) {
@@ -45,12 +54,14 @@ export class FetchService implements IApiService {
 		});
 
 		const response = await fetch(`${this.baseURL}${url}`, requestConfig);
+		this.responseCallback(response);
+		const jsonResponse = await response.json();
 
-		this.responseCallbacks.forEach((callback) => {
-			Object.assign(response, callback(response));
-		});
+		if (!response.ok && typeof this.responseErrorCallback === 'function') {
+			this.responseErrorCallback(response);
+		}
 
-		return response.json();
+		return jsonResponse;
 	}
 
 	async post<T>(url: string, data: any, config: RequestInit = {}): Promise<T> {
@@ -64,12 +75,14 @@ export class FetchService implements IApiService {
 		requestConfig.body = this.transformBody(data, requestConfig);
 
 		const response = await fetch(`${this.baseURL}${url}`, requestConfig);
+		this.responseCallback(response);
+		const jsonResponse = await response.json();
 
-		this.responseCallbacks.forEach((callback) => {
-			Object.assign(response, callback(response));
-		});
+		if (!response.ok && typeof this.responseErrorCallback === 'function') {
+			this.responseErrorCallback(response, jsonResponse);
+		}
 
-		return response.json();
+		return jsonResponse;
 	}
 
 	async put<T>(url: string, data: any, config: RequestInit = {}): Promise<T> {
@@ -83,12 +96,14 @@ export class FetchService implements IApiService {
 		requestConfig.body = this.transformBody(data, requestConfig);
 
 		const response = await fetch(`${this.baseURL}${url}`, requestConfig);
+		this.responseCallback(response);
+		const jsonResponse = await response.json();
 
-		this.responseCallbacks.forEach((callback) => {
-			Object.assign(response, callback(response));
-		});
+		if (!response.ok && typeof this.responseErrorCallback === 'function') {
+			this.responseErrorCallback(response, jsonResponse);
+		}
 
-		return response.json();
+		return jsonResponse;
 	}
 
 	async patch<T>(url: string, data: any, config: RequestInit = {}): Promise<T> {
@@ -102,12 +117,14 @@ export class FetchService implements IApiService {
 		requestConfig.body = this.transformBody(data, requestConfig);
 
 		const response = await fetch(`${this.baseURL}${url}`, requestConfig);
+		this.responseCallback(response);
+		const jsonResponse = await response.json();
 
-		this.responseCallbacks.forEach((callback) => {
-			Object.assign(response, callback(response));
-		});
+		if (!response.ok && typeof this.responseErrorCallback === 'function') {
+			this.responseErrorCallback(response, jsonResponse);
+		}
 
-		return response.json();
+		return jsonResponse;
 	}
 
 	async delete<T>(url: string, config: RequestInit = {}): Promise<T> {
@@ -120,12 +137,14 @@ export class FetchService implements IApiService {
 		requestConfig.method = 'DELETE';
 
 		const response = await fetch(`${this.baseURL}${url}`, requestConfig);
+		this.responseCallback(response);
+		const jsonResponse = await response.json();
 
-		this.responseCallbacks.forEach((callback) => {
-			Object.assign(response, callback(response));
-		});
+		if (!response.ok && typeof this.responseErrorCallback === 'function') {
+			this.responseErrorCallback(response);
+		}
 
-		return response.json();
+		return jsonResponse;
 	}
 }
 

@@ -1,9 +1,11 @@
 export type RequestCallback = (config: RequestInit) => RequestInit;
-export type ResponseCallback = (response: Response) => Response;
+export type ResponseCallback = (response: Response) => void;
+export type ResponseErrorCallback = (errorResponse: Response, data?: any) => void;
 
 export interface IApiService {
 	onRequest(callback: RequestCallback): void;
-	onResponse(response: ResponseCallback): void;
+	onResponse(callback: ResponseCallback): void;
+	onResponseError(callback: ResponseErrorCallback): void;
 
 	get<T>(url: string, config?: RequestInit): Promise<T>;
 	post<T>(url: string, payload: any, config?: RequestInit): Promise<T>;

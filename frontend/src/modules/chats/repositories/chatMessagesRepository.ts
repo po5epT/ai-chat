@@ -8,7 +8,7 @@ type TGetMessagesPayload = {
 	limit?: string;
 };
 
-type TCreateMessagePayload = Omit<IChatMessage, 'id' | 'user_id' | 'files'>;
+type TCreateMessagePayload = Omit<IChatMessage, 'id' | 'user_id'>;
 
 const createChatMessagesRepository = (apiService: IApiService) => {
 	const baseURL = '/messages';
@@ -30,12 +30,10 @@ const createChatMessagesRepository = (apiService: IApiService) => {
 		return apiService.get<IResponse<IChatMessage[]>>(`${baseURL}?${searchParams}`);
 	};
 
-	const createMessage = async (
-		payload: TCreateMessagePayload,
-		files: IChatMessageFile[] = [],
-	): Promise<IChatMessage> => {
+	const createMessage = async (payload: TCreateMessagePayload): Promise<IChatMessage> => {
 		const headers = new Headers({ 'Content-Type': 'multipart/form-data' });
-		const formData = createFormDataFromObject(payload);
+		const { files = [], ...data } = payload;
+		const formData = createFormDataFromObject(data);
 
 		files.forEach((file) => {
 			formData.append('files[]', file.rawFile!, file.name);
@@ -44,13 +42,10 @@ const createChatMessagesRepository = (apiService: IApiService) => {
 		return apiService.post<IChatMessage>(baseURL, formData, { headers });
 	};
 
-	const updateMessage = async (
-		id: IChatMessage['id'],
-		payload: IChatMessage,
-		files: IChatMessageFile[] = [],
-	): Promise<IChatMessage> => {
+	const updateMessage = async (id: IChatMessage['id'], payload: IChatMessage): Promise<IChatMessage> => {
 		const headers = new Headers({ 'Content-Type': 'multipart/form-data' });
-		const formData = createFormDataFromObject(payload);
+		const { files = [], ...data } = payload;
+		const formData = createFormDataFromObject(data);
 
 		files.forEach((file) => {
 			formData.append('files[]', file.rawFile!, file.name);

@@ -4,6 +4,7 @@ import { defineStore } from 'pinia';
 import type { ILastEvaluatedKey } from '@/services/api';
 import type { IChat } from '@/modules/chats/types';
 import { chatsRepository } from '@/modules/chats/repositories';
+import flatry from 'flatry';
 
 export const useChatsStore = defineStore('chats', () => {
 	const isChatsLoaded = ref(false);
@@ -21,10 +22,17 @@ export const useChatsStore = defineStore('chats', () => {
 		}
 
 		isChatsLoading.value = true;
-		const { data, last_evaluated_key } = await chatsRepository.getChats();
+		const [err, res] = await flatry(chatsRepository.getChats());
+		isChatsLoading.value = false;
+
+		if (err) {
+			throw err;
+		}
+
+		const { data, last_evaluated_key } = res ?? {};
+
 		chatList.value = data;
 		lastEvaluatedKey.value = last_evaluated_key;
-		isChatsLoading.value = false;
 		isChatsLoaded.value = true;
 	};
 

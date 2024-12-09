@@ -54,12 +54,12 @@ watchEffect(async () => {
 });
 
 const onSubmitMessage = ({ text, files }: { text: string; files: IChatMessageFile[] }) => {
-	const newChatMessageData = new FormData();
-	newChatMessageData.append('chat_id', chatId.value);
-	newChatMessageData.append('text', text);
-	files.forEach((file, index) => {
-		newChatMessageData.append('file' + ++index, file.rawFile as File);
-	});
+	const newChatMessageData = {
+		chat_id: chatId.value,
+		text,
+		files,
+		timestamp: +new Date(),
+	};
 
 	isSystemGenerating.value = true;
 

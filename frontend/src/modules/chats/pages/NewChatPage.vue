@@ -15,10 +15,9 @@ import flatry from 'flatry';
 
 import ChatMessagesList from '@/modules/chats/components/chat-messages-list/ChatMessagesList.vue';
 import ChatForm from '@/modules/chats/components/chat-form/ChatForm.vue';
-import type { IUploadFile } from '@/types';
-import type { IChat, IChatMessage } from '@/modules/chats/types';
+import type { IChatMessage } from '@/modules/chats/types';
 import { errorNotify } from '@/services/notify';
-import { createMockSystemFirstChatMessage, createNewChatMessage } from '@/modules/chats/mocks';
+import { createMockSystemFirstChatMessage } from '@/modules/chats/mocks';
 import { chatMessagesRepository, chatsRepository } from '@/modules/chats/repositories';
 import { useChatsStore } from '@/modules/chats/stores/chatsStore';
 
@@ -41,9 +40,12 @@ const onSubmitMessage = async ({ text = '' }: { text: string }) => {
 		return;
 	}
 
-	const newChatMessageData = new FormData();
-	newChatMessageData.append('chat_id', chat.id);
-	newChatMessageData.append('text', text);
+	const newChatMessageData = {
+		chat_id: chat.id,
+		text,
+		timestamp: +new Date(),
+	};
+
 	const [messageErr] = await flatry(chatMessagesRepository.createMessage(newChatMessageData));
 
 	if (messageErr) {
