@@ -28,10 +28,13 @@ import ChatSystemMessage from '@/modules/chats/components/chat-message/ChatSyste
 import ChatForm from '@/modules/chats/components/chat-form/ChatForm.vue';
 import { chatMessagesRepository } from '@/modules/chats/repositories';
 import { useChatsStore } from '@/modules/chats/stores/chatsStore';
+import { useAuthStore } from '@/stores/auth';
 import { errorNotify } from '@/services/notify';
 import type { ILastEvaluatedKey } from '@/services/api';
+import { createChatMessageModel } from '@/modules/chats/models';
 
 const route = useRoute();
+const authStore = useAuthStore();
 const chatsStore = useChatsStore();
 const chatId = computed<IChat['id']>(() => route.params.id as IChat['id']);
 
@@ -61,14 +64,12 @@ watchEffect(async () => {
 });
 
 const onSubmitMessage = ({ text, files }: { text: string; files: IChatMessageFile[] }) => {
-	const newChatMessageData = {
-		id: 'new',
+	const newChatMessageData = createChatMessageModel({
 		chat_id: chatId.value,
-		user_id: 'asdasd', // TODO refactor
-		timestamp: +new Date(),
+		user_id: authStore.userId!,
 		text,
 		files,
-	};
+	});
 
 	isSystemGenerating.value = true;
 
@@ -80,17 +81,10 @@ const onSubmitMessage = ({ text, files }: { text: string; files: IChatMessageFil
 		.then((createdChatMessage) => {
 			const { requested_message_id, ...restData } = createdChatMessage;
 
-			messagesList.value = messagesList.value.map((message) => {
-				if (message.id === 'new') {
-					return {
-						...message,
-						id: requested_message_id,
-					};
-				}
+			newChatMessageData.id = requested_message_id;
 
-				return message;
-			});
-
+			messagesList.value.pop();
+			messagesList.value.push(newChatMessageData);
 			messagesList.value.push(restData);
 
 			nextTick().then(() => messagesListRef.value?.scroll());

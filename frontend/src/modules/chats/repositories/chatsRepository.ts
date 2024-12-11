@@ -1,5 +1,5 @@
 import type { IApiService, IResponse } from '@/services/api';
-import type { IChat } from '@/modules/chats/types';
+import type { IChat, NewChatModel } from '@/modules/chats/types';
 import { apiService } from '@/services/api';
 
 const createChatsRepository = (apiService: IApiService) => {
@@ -13,7 +13,7 @@ const createChatsRepository = (apiService: IApiService) => {
 		return apiService.get<IChat>(`${baseURL}/${id}`);
 	};
 
-	const createChat = async (payload: { first_prompt: string }): Promise<IChat> => {
+	const createChat = async (payload: NewChatModel): Promise<IChat> => {
 		return apiService.post<IChat>(baseURL, payload);
 	};
 

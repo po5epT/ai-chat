@@ -16,3 +16,7 @@ export interface IChat {
 	is_pinned: boolean;
 	model_config?: IModelConfig;
 }
+
+export type NewChatModel = {
+	first_prompt: string;
+};
