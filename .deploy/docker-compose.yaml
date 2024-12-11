@@ -16,7 +16,7 @@ services:
    
   ai-front:
     build:
-      context: ./frontend
+      context: ../frontend
       dockerfile: Dockerfile
     container_name: ai_front
     restart: unless-stopped
