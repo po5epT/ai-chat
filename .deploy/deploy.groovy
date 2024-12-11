@@ -6,7 +6,7 @@ pipeline {
     parameters{
         string(
             defaultValue: 'DO-2418-add-deploy', 
-            name: 'bcp_git_branch', 
+            name: 'ai_git_branch', 
             description: 'BCP project repository branch', 
             trim: true
         )
