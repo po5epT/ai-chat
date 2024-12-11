@@ -1,7 +1,7 @@
 <template>
 	<ChatMessagesList
 		ref="messagesListRef"
-		:messages-list="messagesList"
+		:messages-list="chatMessages"
 	>
 		<template #generating>
 			<ChatSystemMessage
@@ -19,44 +19,50 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import flatry from 'flatry';
 
-import ChatMessagesList from '@/modules/chats/components/chat-messages-list/ChatMessagesList.vue';
-import ChatForm from '@/modules/chats/components/chat-form/ChatForm.vue';
 import type { IChatMessage } from '@/modules/chats/types';
-import { errorNotify } from '@/services/notify';
-import { createChatMessageModel, createFirstSystemChatMessageModel, createNewChatModel } from '@/modules/chats/models';
-import { chatMessagesRepository, chatsRepository } from '@/modules/chats/repositories';
-import { useChatsStore } from '@/modules/chats/stores/chatsStore';
-import { useAuthStore } from '@/stores/auth';
+import ChatMessagesList from '@/modules/chats/components/chat-messages-list/ChatMessagesList.vue';
 import ChatSystemMessage from '@/modules/chats/components/chat-message/ChatSystemMessage.vue';
+import ChatForm from '@/modules/chats/components/chat-form/ChatForm.vue';
+import { errorNotify } from '@/services/notify';
+import { useAuthStore } from '@/stores/auth';
+import { createChatMessageModel, createFirstSystemChatMessageModel, createNewChatModel } from '@/modules/chats/models';
+import { chatsRepository } from '@/modules/chats/repositories';
+import { useChatsStore } from '@/modules/chats/stores/chatsStore';
+import { useChatMessages } from '@/modules/chats/composables/useChatMessages';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const chatsStore = useChatsStore();
 chatsStore.resetCurrentChat();
 
-const messagesList = ref<IChatMessage[]>([createFirstSystemChatMessageModel()]);
+const { chatMessages, createChatMessage } = useChatMessages();
+
+chatMessages.value.push(createFirstSystemChatMessageModel());
+
 const isSystemGenerating = ref(false);
 const emptyChatSystemMessage = {} as IChatMessage;
 
 const onSubmitMessage = async ({ text = '' }: { text: string }) => {
 	const newChatData = createNewChatModel({ first_prompt: text });
+	const newChatMessageData = createChatMessageModel({
+		user_id: authStore.userId!,
+		text,
+	});
 
-	isSystemGenerating.value = true;
+	chatMessages.value.push(newChatMessageData);
+
 	const [chatErr, chat] = await flatry(chatsRepository.createChat(newChatData));
-	isSystemGenerating.value = false;
 
 	if (chatErr) {
 		errorNotify((chatErr as Error).message ?? chatErr);
 		return;
 	}
 
-	const newChatMessageData = createChatMessageModel({
-		chat_id: chat.id,
-		user_id: authStore.userId!,
-		text,
-	});
+	newChatMessageData.chat_id = chat.id;
 
-	const [messageErr] = await flatry(chatMessagesRepository.createMessage(newChatMessageData));
+	isSystemGenerating.value = true;
+	const [messageErr] = await flatry(createChatMessage(newChatMessageData));
+	isSystemGenerating.value = false;
 
 	if (messageErr) {
 		errorNotify((messageErr as Error).message ?? messageErr);
