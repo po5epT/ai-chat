@@ -1,30 +1,64 @@
-import { nextTick, ref } from 'vue';
+import { ref } from 'vue';
 import flatry from 'flatry';
 
 import type { IChat, IChatMessage } from '@/modules/chats/types';
+import type { IStartKey } from '@/services/api';
 import { chatMessagesRepository } from '@/modules/chats/repositories';
-import type { ILastEvaluatedKey } from '@/services/api';
-import { errorNotify } from '@/services/notify';
+import { QueryParamsService } from '@/services/query';
 
 export const useChatMessages = () => {
 	const chatMessages = ref<IChatMessage[]>([]);
 	const isMessagesLoading = ref(false);
+	const startKey = ref<IStartKey | null>();
 
-	let startKey: ILastEvaluatedKey | undefined;
+	const resetChatMessages = () => {
+		chatMessages.value = [];
+		startKey.value = undefined;
+	};
 
-	const loadChatMessages = async (chatId: IChat['id'], limit?: string) => {
-		const payload = { limit, startKey: JSON.stringify(startKey) };
+	const getMessages = async (chatId: IChat['id'], limit?: number) => {
+		const queryParams = new QueryParamsService(chatId, 'chat_id');
+		const queryString = queryParams.setLimit(limit).setStartKey(startKey.value).toString();
+
+		console.log(queryString);
 
 		isMessagesLoading.value = true;
-		const [err, res] = await flatry(chatMessagesRepository.getMessages(chatId, payload));
+		const [err, res] = await flatry(chatMessagesRepository.getMessages(queryString));
 		isMessagesLoading.value = false;
 
 		if (err) {
 			return Promise.reject(err);
 		}
 
+		res.data.sort((messageA, messageB) => messageA.timestamp - messageB.timestamp);
+
+		return res;
+	};
+
+	const loadChatMessages = async (chatId: IChat['id'], limit?: number) => {
+		const [err, res] = await flatry(getMessages(chatId, limit));
+
+		if (err) {
+			return Promise.reject(err);
+		}
+
 		chatMessages.value = res.data;
-		startKey = res.last_evaluated_key;
+		startKey.value = res.start_key;
+	};
+
+	const loadChatMessagesMore = async (chatId: IChat['id'], limit?: number) => {
+		if (startKey.value === null) {
+			return;
+		}
+
+		const [err, res] = await flatry(getMessages(chatId, limit));
+
+		if (err) {
+			return Promise.reject(err);
+		}
+
+		chatMessages.value = res.data.concat(chatMessages.value);
+		startKey.value = res.start_key;
 	};
 
 	const createChatMessage = async (chatMessageData: IChatMessage) => {
@@ -45,7 +79,11 @@ export const useChatMessages = () => {
 
 	return {
 		chatMessages,
+		startKey,
+		isMessagesLoading,
 		loadChatMessages,
+		loadChatMessagesMore,
 		createChatMessage,
+		resetChatMessages,
 	};
 };

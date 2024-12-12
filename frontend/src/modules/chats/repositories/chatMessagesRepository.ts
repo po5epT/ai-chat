@@ -1,32 +1,15 @@
 import type { IApiService, IResponse } from '@/services/api';
-import type { IChat, IChatMessage } from '@/modules/chats/types';
+import type { IChatMessage } from '@/modules/chats/types';
 import { apiService } from '@/services/api';
 import { createFormDataFromObject } from '@/utils/formData';
-import { createSearchParams } from '@/modules/chats/utils';
-
-type TGetMessagesPayload = {
-	start_key?: string;
-	limit?: string;
-};
 
 type TCreateMessagePayload = Omit<IChatMessage, 'id' | 'user_id' | 'requested_message_id'>;
 
 const createChatMessagesRepository = (apiService: IApiService) => {
 	const baseURL = '/messages';
 
-	const getMessages = async (
-		chatId: IChat['id'],
-		payload: TGetMessagesPayload = {},
-	): Promise<IResponse<IChatMessage[]>> => {
-		const query = createSearchParams({
-			chat_id: chatId,
-			start_key: payload.start_key,
-			limit: payload.limit,
-		});
-
-		const searchParams = new URLSearchParams(query).toString();
-
-		return apiService.get<IResponse<IChatMessage[]>>(`${baseURL}?${searchParams}`);
+	const getMessages = async (query: string): Promise<IResponse<IChatMessage[]>> => {
+		return apiService.get<IResponse<IChatMessage[]>>(`${baseURL}?${query}`);
 	};
 
 	const createMessage = async (

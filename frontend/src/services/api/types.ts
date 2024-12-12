@@ -14,7 +14,7 @@ export interface IApiService {
 	delete<T>(url: string, config?: RequestInit): Promise<T>;
 }
 
-export interface ILastEvaluatedKey {
+export interface IStartKey {
 	id: string;
 	chat_id: string;
 	timestamp: number;
@@ -22,5 +22,5 @@ export interface ILastEvaluatedKey {
 
 export interface IResponse<T> {
 	data: T;
-	last_evaluated_key?: ILastEvaluatedKey;
+	start_key: IStartKey | null;
 }
