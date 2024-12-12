@@ -20,8 +20,6 @@ export const useChatMessages = () => {
 		const queryParams = new QueryParamsService(chatId, 'chat_id');
 		const queryString = queryParams.setLimit(limit).setStartKey(startKey.value).toString();
 
-		console.log(queryString);
-
 		isMessagesLoading.value = true;
 		const [err, res] = await flatry(chatMessagesRepository.getMessages(queryString));
 		isMessagesLoading.value = false;
@@ -47,10 +45,6 @@ export const useChatMessages = () => {
 	};
 
 	const loadChatMessagesMore = async (chatId: IChat['id'], limit?: number) => {
-		if (startKey.value === null) {
-			return;
-		}
-
 		const [err, res] = await flatry(getMessages(chatId, limit));
 
 		if (err) {
