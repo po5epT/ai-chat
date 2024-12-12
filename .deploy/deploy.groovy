@@ -5,7 +5,7 @@ pipeline {
 
     parameters{
         string(
-            defaultValue: 'DO-2418-add-deploy', 
+            defaultValue: 'main', 
             name: 'ai_git_branch', 
             description: 'BCP project repository branch', 
             trim: true
@@ -17,7 +17,7 @@ pipeline {
            steps {
                 sh 'echo "Creating the necessary directories and clone/pull bcp project"'
                 dir ('./') {
-                    git branch: "DO-2418-add-deploy",
+                    git branch: "main",
                         credentialsId: 'ai_jenkins_git',
                         url: 'git@github.com:InfusemediaTeam/infuse-ai-app.git'
                 }
