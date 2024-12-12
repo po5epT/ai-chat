@@ -5,8 +5,8 @@ import { createFormDataFromObject } from '@/utils/formData';
 import { createSearchParams } from '@/modules/chats/utils';
 
 type TGetMessagesPayload = {
-	start_key?: string;
-	limit?: string;
+	last_evaluated_key?: string;
+	limit?: number;
 };
 
 type TCreateMessagePayload = Omit<IChatMessage, 'id' | 'user_id' | 'requested_message_id'>;
@@ -20,7 +20,7 @@ const createChatMessagesRepository = (apiService: IApiService) => {
 	): Promise<IResponse<IChatMessage[]>> => {
 		const query = createSearchParams({
 			chat_id: chatId,
-			start_key: payload.start_key,
+			last_evaluated_key: payload.last_evaluated_key,
 			limit: payload.limit,
 		});
 

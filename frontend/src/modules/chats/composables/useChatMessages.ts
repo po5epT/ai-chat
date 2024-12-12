@@ -1,19 +1,25 @@
-import { nextTick, ref } from 'vue';
+import { ref } from 'vue';
 import flatry from 'flatry';
 
 import type { IChat, IChatMessage } from '@/modules/chats/types';
-import { chatMessagesRepository } from '@/modules/chats/repositories';
 import type { ILastEvaluatedKey } from '@/services/api';
-import { errorNotify } from '@/services/notify';
+import { chatMessagesRepository } from '@/modules/chats/repositories';
 
 export const useChatMessages = () => {
 	const chatMessages = ref<IChatMessage[]>([]);
 	const isMessagesLoading = ref(false);
+	const startKey = ref<ILastEvaluatedKey | null>();
 
-	let startKey: ILastEvaluatedKey | undefined;
+	const resetChatMessages = () => {
+		chatMessages.value = [];
+		startKey.value = undefined;
+	};
 
-	const loadChatMessages = async (chatId: IChat['id'], limit?: string) => {
-		const payload = { limit, startKey: JSON.stringify(startKey) };
+	const getMessages = async (chatId: IChat['id'], limit?: number) => {
+		const payload = {
+			limit,
+			last_evaluated_key: startKey.value ? encodeURIComponent(JSON.stringify(startKey.value)) : undefined,
+		};
 
 		isMessagesLoading.value = true;
 		const [err, res] = await flatry(chatMessagesRepository.getMessages(chatId, payload));
@@ -23,8 +29,35 @@ export const useChatMessages = () => {
 			return Promise.reject(err);
 		}
 
+		res.data.sort((messageA, messageB) => messageA.timestamp - messageB.timestamp);
+
+		return res;
+	};
+
+	const loadChatMessages = async (chatId: IChat['id'], limit?: number) => {
+		const [err, res] = await flatry(getMessages(chatId, limit));
+
+		if (err) {
+			return Promise.reject(err);
+		}
+
 		chatMessages.value = res.data;
-		startKey = res.last_evaluated_key;
+		startKey.value = res.last_evaluated_key;
+	};
+
+	const loadChatMessagesMore = async (chatId: IChat['id'], limit?: number) => {
+		if (startKey.value === null) {
+			return;
+		}
+
+		const [err, res] = await flatry(getMessages(chatId, limit));
+
+		if (err) {
+			return Promise.reject(err);
+		}
+
+		chatMessages.value = [...res.data, ...chatMessages.value];
+		startKey.value = res.last_evaluated_key;
 	};
 
 	const createChatMessage = async (chatMessageData: IChatMessage) => {
@@ -45,7 +78,11 @@ export const useChatMessages = () => {
 
 	return {
 		chatMessages,
+		startKey,
+		isMessagesLoading,
 		loadChatMessages,
+		loadChatMessagesMore,
 		createChatMessage,
+		resetChatMessages,
 	};
 };

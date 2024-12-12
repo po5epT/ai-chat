@@ -22,5 +22,5 @@ export interface ILastEvaluatedKey {
 
 export interface IResponse<T> {
 	data: T;
-	last_evaluated_key?: ILastEvaluatedKey;
+	last_evaluated_key: ILastEvaluatedKey | null;
 }
