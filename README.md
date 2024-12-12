@@ -12,7 +12,148 @@ In general it is expected that if any of the requests fails, the client will rec
 
 ## Authentication
 
-Authentication is done through the INFUSE auth module. Details: to be added...
+Authentication is done through the Azure.
+
+## General flow
+
+The general flow is as follows:
+
+- User clicks on Login button on frontend, frontend sends request to `/auth/oauth` on backend. Backend generates a specific Azure link for authentication and redirects the user to it.
+- User enters their details through Azure and submits them.
+    - Azure sends request to backend with authorization code.
+    - Backend exchanges the authorization code from Azure to tokens:
+        - `access_token` is added to the query params of the request to `/auth/login`
+            - this token is short lived, usually between 1 - 2 hours
+        - `refresh_token` is added to cookies
+- All the following up requests to `/api/v1/*` routes and `/auth/user` now require `Authorization` header with value `Bearer access_token_value_here`.
+    - If the request will not have this header it is expected that the request will end up with `401` status code in response.
+- If a request ends up with `401` status code while `access_token` was provided in headers, this means that it is likely that access token already expired and the front end needs to send a request to `/auth/refresh` route, with `refresh_token` in cookies.
+    - If request is successful, the front end will receive a new `access_token` that it will be able to use for further requests.
+    - If not - it is likely time for the user to start authentication right from the start (by clicking login).
+
+
+## Endpoints
+
+### `GET` `/auth/oauth`
+
+This is the first request that initiates authorization via Azure. User will be redirected to the Azure login form. Once the user confirms their details, backend will retrieve the token for this specific user and will send a request to front end:
+
+`GET` `/auth/login?access_token=access_token_value_here`
+
+After which the front end will be able to save the `access_token` and use it for further requests.
+
+Together with the access token, the backend will also create a cookie with `refresh_token` that can be used later on to retrieve a fresh `access_token` after it expires.
+
+`refresh_token` cookie will have properties:
+
+- SameSite=Strict
+- Secure
+- Path='/auth'
+- HttpOnly
+
+Response codes:
+
+```code
+302 - Successfull redirect
+500 - Unexpected server error
+503 - Service Unavailable: maintenance, etc.
+```
+
+### `POST` `/auth/refresh`
+
+This request is used to retrieve a new `access_token` and update the cookie with `refresh_token`.
+
+Request body:
+
+```js
+{
+  // parameters
+}
+```
+
+Requires `refresh_token` to be present in cookies.
+
+Response:
+
+```js
+{
+    "access_token" : "access_token_value here"
+}
+```
+
+Refresh token cookie is updated as well
+
+Response codes:
+
+```code
+200 - Success
+401 - Unauthorized
+500 - Unexpected server error
+503 - Service Unavailable: maintenance, etc.
+```
+
+### `POST` `/auth/logout`
+
+This request is used to clean the `refresh_token` from the cookies. Requires `refresh_token` to be present in cookies.
+
+Request body:
+
+```js
+{
+  // parameters
+}
+```
+
+Response:
+
+```js
+{
+    "message": "Successfully logged out"
+}
+```
+
+Refresh token cookie is updated as well.
+
+Response codes:
+
+```code
+200 - Success
+500 - Unexpected server error
+503 - Service Unavailable: maintenance, etc.
+```
+
+### `GET` `/auth/user`
+
+Retrieve the information about the current user based on the access token.
+
+Query params:
+
+```js
+{
+  // no query parameters are implemented
+}
+```
+
+Requires Authorization header with access token retrieved from `/auth/oauth` request.
+
+Response
+
+```js
+{
+    "email": String,
+    "id": String,
+    "name": String // Full name retrieved from Azure
+}
+```
+
+Response codes:
+
+```code
+200 - Success
+401 - Unauthorized
+500 - Unexpected server error
+503 - Service Unavailable: maintenance, etc.
+```
 
 ## Folders
 
@@ -46,7 +187,7 @@ Response is <b>always an array</b>, even if only one item matches the query:
         "is_deleted": Boolean,
       },
     ],
-  "last_evaluated_key": null
+  "start_key": null
 }
 ```
 
@@ -54,6 +195,7 @@ Response codes:
 
 ```code
 200 - Success
+401 - Unauthorized
 500 - Unexpected server error
 503 - Service Unavailable: maintenance, etc.
 ```
@@ -77,6 +219,7 @@ Response codes:
 
 ```code
 200 - Success
+401 - Unauthorized
 404 - Folder not found by id
 500 - Unexpected server error
 503 - Service Unavailable: maintenance, etc.
@@ -109,6 +252,7 @@ Response codes:
 
 ```code
 200 - Success
+401 - Unauthorized
 400 - Bad request params
 500 - Unexpected server error
 503 - Service Unavailable: maintenance, etc.
@@ -142,6 +286,7 @@ Response codes:
 ```code
 200 - Success
 400 - Bad request params
+401 - Unauthorized
 404 - Folder not found by id
 500 - Unexpected server error
 503 - Service Unavailable: maintenance, etc.
@@ -161,6 +306,7 @@ Response codes:
 
 ```code
 200 - Success
+401 - Unauthorized
 500 - Unexpected server error
 503 - Service Unavailable: maintenance, etc.
 ```
@@ -221,7 +367,7 @@ Response is <b>always an array</b>, even if only one item matches the query:
         },
       },
     ],
-    "last_evaluated_key": null
+    "start_key": null
 }
 ```
 
@@ -230,6 +376,7 @@ Response codes:
 ```code
 200 - Success
 400 - Bad request params
+401 - Unauthorized
 500 - Unexpected server error
 503 - Service Unavailable: maintenance, etc.
 ```
@@ -266,6 +413,7 @@ Response codes:
 ```code
 200 - Success
 400 - Bad request params
+401 - Unauthorized
 404 - Chat not found by id
 500 - Unexpected server error
 503 - Service Unavailable: maintenance, etc.
@@ -319,6 +467,7 @@ Response codes:
 ```code
 200 - Success
 400 - Bad request params
+401 - Unauthorized
 500 - Unexpected server error
 503 - Service Unavailable: maintenance, etc.
 ```
@@ -371,6 +520,7 @@ Response codes:
 ```code
 200 - Success
 400 - Bad request params
+401 - Unauthorized
 404 - Chat not found by id
 500 - Unexpected server error
 503 - Service Unavailable: maintenance, etc.
@@ -390,6 +540,7 @@ Response codes:
 
 ```code
 200 - Success
+401 - Unauthorized
 500 - Unexpected server error
 503 - Service Unavailable: maintenance, etc.
 ```
@@ -407,7 +558,7 @@ Query params:
 ```js
 {
     "chat_id" : String, // required for now, can't see a use case for fetching everything
-    "start_key" : String, // optional, URL encoded representation of the value of the "last_evaluated_key" key, received in previous response from server
+    "start_key" : String, // optional, URL encoded representation of the value of the "start_key" key, received in previous response from server
     "limit" : Integer // optional, 50 by default, for loading more messages in chat on demand while scrolling
 }
 ```
@@ -450,7 +601,7 @@ Response is <b>always an array</b>, even if only one item matches the query:
         ],
       },
     ],
-    "last_evaluated_key" : {
+    "start_key" : {
         "id": String,
         "chat_id": String,
         "timestamp": UnixTimestamp(millis)
@@ -463,6 +614,7 @@ Response codes:
 ```code
 200 - Success
 400 - Bad request params
+401 - Unauthorized
 500 - Unexpected server error
 503 - Service Unavailable: maintenance, etc.
 ```
@@ -520,6 +672,7 @@ Response codes:
 ```code
 200 - Success
 400 - Bad request params
+401 - Unauthorized
 500 - Unexpected server error
 503 - Service Unavailable: maintenance, etc.
 ```
