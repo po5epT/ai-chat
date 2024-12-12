@@ -1,79 +1,111 @@
 <template>
 	<ChatMessagesList
 		ref="messagesListRef"
-		:messages-list="messagesList"
-		:is-system-generating="isSystemGenerating"
-	/>
+		:messages-list="chatMessages"
+	>
+		<template #generating>
+			<ChatSystemMessage
+				v-if="isSystemGenerating"
+				:message="emptyChatSystemMessage"
+			/>
+		</template>
+	</ChatMessagesList>
 
-	<ChatForm @submit:message="onSubmitMessage" />
+	<ChatForm
+		is-files-allowed
+		@submit:message="onSubmitMessage"
+	/>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, useTemplateRef, watchEffect } from 'vue';
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import flatry from 'flatry';
+import { useInfiniteScroll } from '@vueuse/core';
 
 import type { IChat, IChatMessage, IChatMessageFile } from '@/modules/chats/types';
 import ChatMessagesList from '@/modules/chats/components/chat-messages-list/ChatMessagesList.vue';
+import ChatSystemMessage from '@/modules/chats/components/chat-message/ChatSystemMessage.vue';
 import ChatForm from '@/modules/chats/components/chat-form/ChatForm.vue';
-import { createMockSystemChatMessage, createNewChatMessage } from '@/modules/chats/mocks';
-import { chatMessagesRepository } from '@/modules/chats/repositories';
 import { useChatsStore } from '@/modules/chats/stores/chatsStore';
+import { useAuthStore } from '@/stores/auth';
 import { errorNotify } from '@/services/notify';
+import { createChatMessageModel } from '@/modules/chats/models';
+import { useChatMessages } from '@/modules/chats/composables/useChatMessages';
+import flatry from 'flatry';
 
 const route = useRoute();
+const authStore = useAuthStore();
 const chatsStore = useChatsStore();
 const chatId = computed<IChat['id']>(() => route.params.id as IChat['id']);
 
+const { chatMessages, startKey, loadChatMessages, loadChatMessagesMore, createChatMessage, resetChatMessages } =
+	useChatMessages();
+
 const messagesListRef = useTemplateRef<InstanceType<typeof ChatMessagesList>>('messagesListRef');
-const messagesList = ref<IChatMessage[]>([]);
-const isMessagesLoading = ref(false);
+const messagesListElement = computed<HTMLElement>(() => messagesListRef.value?.$el);
+
 const isSystemGenerating = ref(false);
+const emptyChatSystemMessage = {} as IChatMessage;
 
-watchEffect(async () => {
-	messagesList.value = [];
-	isMessagesLoading.value = true;
-	const [err, messages] = await flatry(chatMessagesRepository.getMessages(chatId.value));
-	isMessagesLoading.value = false;
+watch(
+	chatId,
+	async (newChatId) => {
+		resetChatMessages();
+		const [err] = await flatry(loadChatMessages(newChatId, 4));
 
-	if (err) {
-		errorNotify((err as Error).message ?? err);
-		return;
-	}
+		if (err) {
+			return errorNotify((err as Error).message ?? err);
+		}
 
-	messagesList.value = messages;
-	chatsStore.setCurrentChatById(chatId.value);
-	await nextTick();
-	messagesListRef.value?.jump();
-});
+		chatsStore.setCurrentChatById(newChatId);
 
-const onSubmitMessage = ({ text, files }: { text: string; files: IChatMessageFile[] }) => {
-	const newChatMessage = createNewChatMessage(chatId.value, { text, files });
-	messagesList.value.push(newChatMessage);
+		await nextTick();
+		messagesListRef.value?.jump();
+	},
+	{ immediate: true },
+);
 
+const onSubmitMessage = async ({ text, files }: { text: string; files: IChatMessageFile[] }) => {
+	const newChatMessageData = createChatMessageModel({
+		chat_id: chatId.value,
+		user_id: authStore.userId!,
+		text,
+		files,
+	});
+
+	chatMessages.value.push(newChatMessageData);
 	nextTick().then(() => messagesListRef.value?.scroll());
 
 	isSystemGenerating.value = true;
+	const [err] = await flatry(createChatMessage(newChatMessageData));
+	isSystemGenerating.value = false;
 
-	// const formData = new FormData();
-	// formData.append('text', text);
-	// files.forEach((file, index) => {
-	// 	formData.append('file' + ++index, file.rawFile as File);
-	// });
+	if (err) {
+		return errorNotify((err as Error).message ?? err);
+	}
 
-	chatMessagesRepository
-		.createMessage(newChatMessage)
-		.then((createdChatMessage) => {
-			messagesList.value.splice(messagesList.value.length - 1, 1, createdChatMessage);
-			nextTick().then(() => messagesListRef.value?.scroll());
-		})
-		.then(() => {
-			messagesList.value.push(createMockSystemChatMessage());
-			nextTick().then(() => messagesListRef.value?.scroll());
-		})
-		.catch((err) => errorNotify(err.message ?? err))
-		.finally(() => {
-			isSystemGenerating.value = false;
-		});
+	await nextTick();
+
+	messagesListRef.value?.scroll();
 };
+
+const onChatScrollTop = async () => {
+	// TODO consider a better way to access container height
+	const heightBefore = messagesListRef.value?.getHeight() ?? 0;
+	const [err] = await flatry(loadChatMessagesMore(chatId.value, 4));
+	const heightAfter = messagesListRef.value?.getHeight() ?? 0;
+
+	if (err) {
+		return errorNotify((err as Error).message ?? err);
+	}
+
+	messagesListElement.value.scrollTo(0, heightAfter - heightBefore);
+};
+
+useInfiniteScroll(messagesListElement, onChatScrollTop, {
+	distance: 10,
+	direction: 'top',
+	interval: 300,
+	canLoadMore: () => !!startKey.value,
+});
 </script>

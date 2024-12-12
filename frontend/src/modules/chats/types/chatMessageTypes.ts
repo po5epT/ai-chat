@@ -11,5 +11,3 @@ export interface IChatMessage {
 	text?: string;
 	files?: IChatMessageFile[];
 }
-
-export type TCreateChatMessageParams = Pick<IChatMessage, 'text' | 'files'>;

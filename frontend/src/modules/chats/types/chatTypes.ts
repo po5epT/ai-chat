@@ -1,5 +1,6 @@
 export type IModelConfig = Partial<{
 	name: string;
+	family: string;
 	max_tokens: number;
 	temperature: number;
 	top_p: number;
@@ -15,3 +16,7 @@ export interface IChat {
 	is_pinned: boolean;
 	model_config?: IModelConfig;
 }
+
+export type NewChatModel = {
+	first_prompt: string;
+};

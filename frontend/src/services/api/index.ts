@@ -1,2 +1,3 @@
 export * from './types';
-export * from './FetchClient';
+export * from './fetchService';
+export * from './apiService';

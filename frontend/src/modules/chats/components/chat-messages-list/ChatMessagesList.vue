@@ -1,53 +1,55 @@
 <template>
-	<section class="messages">
-		<template
-			v-for="(messages, date) in groupedMessagesList"
-			:key="date"
+	<section class="chat">
+		<slot name="chat-top" />
+
+		<div
+			ref="messagesRef"
+			class="messages"
 		>
-			<div class="messages__date">{{ date }}</div>
-
 			<template
-				v-for="message in messages"
-				:key="message.id"
+				v-for="(messages, date) in groupedMessagesList"
+				:key="date"
 			>
-				<ChatSystemMessage
-					v-if="message.user_id === 'system'"
-					:message="message"
-				/>
+				<div class="messages__date">{{ date }}</div>
 
-				<ChatUserMessage
-					v-else
-					:message="message"
-				/>
+				<template
+					v-for="message in messages"
+					:key="message.id"
+				>
+					<ChatSystemMessage
+						v-if="message.user_id === SYSTEM_USER_ID"
+						:message="message"
+					/>
+
+					<ChatUserMessage
+						v-else
+						:message="message"
+					/>
+				</template>
 			</template>
-		</template>
 
-		<ChatSystemMessage
-			v-if="isSystemGenerating"
-			:message="emptyChatSystemMessage"
-		/>
+			<slot name="generating" />
+		</div>
 
 		<div ref="chatBottomRef"></div>
 	</section>
 </template>
 
 <script setup lang="ts">
+import { computed, useTemplateRef } from 'vue';
+
 import ChatUserMessage from '@/modules/chats/components/chat-message/ChatUserMessage.vue';
 import ChatSystemMessage from '@/modules/chats/components/chat-message/ChatSystemMessage.vue';
 import type { IChatMessage } from '@/modules/chats/types';
 import { useScroll } from '@/composables/useScroll';
 import { getMessageDate } from '@/modules/chats/utils/date';
-import { computed } from 'vue';
+import { SYSTEM_USER_ID } from '@/config';
 
-type Props = {
-	messagesList: IChatMessage[];
-	isSystemGenerating?: boolean;
-};
+type Props = { messagesList: IChatMessage[] };
 
-const { messagesList, isSystemGenerating = false } = defineProps<Props>();
+const { messagesList } = defineProps<Props>();
 
 const { scroll, jump } = useScroll('chatBottomRef');
-const emptyChatSystemMessage = {} as IChatMessage;
 
 const groupedMessagesList = computed<Record<string, IChatMessage[]>>(() => {
 	return messagesList.reduce(
@@ -62,11 +64,20 @@ const groupedMessagesList = computed<Record<string, IChatMessage[]>>(() => {
 	);
 });
 
-defineExpose({ scroll, jump });
+const messagesRef = useTemplateRef<HTMLDivElement>('messagesRef');
+const getHeight = () => messagesRef.value?.clientHeight;
+
+defineExpose({ scroll, jump, getHeight });
 </script>
 
 <style scoped>
+.chat {
+	overflow-y: scroll;
+}
+
 .messages {
+	display: flex;
+	flex-direction: column;
 	overflow-y: auto;
 	padding: 0 var(--a-base-h-padding);
 }
