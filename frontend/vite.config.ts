@@ -16,5 +16,16 @@ export default defineConfig({
 	server: {
 		host: '0.0.0.0',
 		port: 5173,
+		proxy: {
+			'/api/v1': {
+				target: 'https://p1oq5lij1c.execute-api.eu-central-1.amazonaws.com',
+				changeOrigin: true,
+			},
+
+			'/auth': {
+				target: 'https://p1oq5lij1c.execute-api.eu-central-1.amazonaws.com',
+				changeOrigin: true,
+			},
+		},
 	},
 });
