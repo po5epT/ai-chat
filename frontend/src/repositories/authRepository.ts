@@ -1,14 +1,15 @@
-import { fetchApi, type IApiClient } from '@/services/api';
+import type { IApiService } from '@/services/api';
 import type { IUser } from '@/types';
+import { apiService } from '@/services/api';
 import { delay } from '@/utils';
-import { getUserMock } from '@/mocks';
+import { createUserModel } from '@/models';
 
-const createAuthRepository = (apiClient: IApiClient) => {
+const createAuthRepository = (apiService: IApiService) => {
 	const baseURL = '/auth';
 
 	const login = async (): Promise<IUser> => {
 		await delay(1500);
-		return getUserMock();
+		return createUserModel();
 
 		//return apiClient.post<IUser>(baseURL, {});
 	};
@@ -33,4 +34,4 @@ const createAuthRepository = (apiClient: IApiClient) => {
 	};
 };
 
-export const authRepository = createAuthRepository(fetchApi);
+export const authRepository = createAuthRepository(apiService);

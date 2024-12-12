@@ -29,7 +29,10 @@
 
 			<div class="message__content">
 				<slot>
-					<p class="message__text">{{ text }}</p>
+					<AMarkdown
+						class="message__text"
+						:source="text"
+					/>
 				</slot>
 
 				<slot name="files">
@@ -44,6 +47,7 @@
 import { computed, useSlots } from 'vue';
 import { ElAvatar } from 'element-plus';
 
+import AMarkdown from '@/components/markdown/AMarkdown.vue';
 import type { IChatMessageFile } from '@/modules/chats/types';
 import AFilePreviewList from '@/components/file-previews/AFilePreviewList.vue';
 import { getHumanDate } from '@/modules/chats/utils';

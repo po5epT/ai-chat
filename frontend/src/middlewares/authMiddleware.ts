@@ -9,17 +9,11 @@ export const authMiddleware = (
 ) => {
 	const authStore = useAuthStore();
 
-	if (to.name !== 'login') {
-		if (authStore.isLoggedIn) {
-			next();
-		} else {
-			next({ name: 'login' });
-		}
+	if (to.name !== 'login' && !authStore.isLoggedIn) {
+		next({ name: 'login' });
+	} else if (to.name === 'login' && authStore.isLoggedIn) {
+		next({ name: 'home' });
 	} else {
-		if (authStore.isLoggedIn) {
-			next({ path: '/' });
-		} else {
-			next();
-		}
+		next();
 	}
 };

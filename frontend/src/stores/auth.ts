@@ -9,6 +9,7 @@ export const useAuthStore = defineStore('auth', () => {
 	const STORAGE_USER_KEY = 'AIP_USER';
 	const isPending = ref(false);
 	const user = ref<IUser | null>(null);
+	const userId = computed(() => user.value?.id ?? null);
 	const isLoggedIn = computed(() => !!user.value);
 
 	const authorize = async () => {
@@ -60,6 +61,7 @@ export const useAuthStore = defineStore('auth', () => {
 
 	return {
 		user,
+		userId,
 		isPending,
 		isLoggedIn,
 		clearUser,
