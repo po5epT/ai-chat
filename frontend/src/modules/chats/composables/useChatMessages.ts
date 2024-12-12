@@ -2,13 +2,14 @@ import { ref } from 'vue';
 import flatry from 'flatry';
 
 import type { IChat, IChatMessage } from '@/modules/chats/types';
-import type { ILastEvaluatedKey } from '@/services/api';
+import type { IStartKey } from '@/services/api';
 import { chatMessagesRepository } from '@/modules/chats/repositories';
+import { QueryParamsService } from '@/services/query';
 
 export const useChatMessages = () => {
 	const chatMessages = ref<IChatMessage[]>([]);
 	const isMessagesLoading = ref(false);
-	const startKey = ref<ILastEvaluatedKey | null>();
+	const startKey = ref<IStartKey | null>();
 
 	const resetChatMessages = () => {
 		chatMessages.value = [];
@@ -16,13 +17,13 @@ export const useChatMessages = () => {
 	};
 
 	const getMessages = async (chatId: IChat['id'], limit?: number) => {
-		const payload = {
-			limit,
-			last_evaluated_key: startKey.value ? encodeURIComponent(JSON.stringify(startKey.value)) : undefined,
-		};
+		const queryParams = new QueryParamsService(chatId, 'chat_id');
+		const queryString = queryParams.setLimit(limit).setStartKey(startKey.value).toString();
+
+		console.log(queryString);
 
 		isMessagesLoading.value = true;
-		const [err, res] = await flatry(chatMessagesRepository.getMessages(chatId, payload));
+		const [err, res] = await flatry(chatMessagesRepository.getMessages(queryString));
 		isMessagesLoading.value = false;
 
 		if (err) {
@@ -42,7 +43,7 @@ export const useChatMessages = () => {
 		}
 
 		chatMessages.value = res.data;
-		startKey.value = res.last_evaluated_key;
+		startKey.value = res.start_key;
 	};
 
 	const loadChatMessagesMore = async (chatId: IChat['id'], limit?: number) => {
@@ -56,8 +57,8 @@ export const useChatMessages = () => {
 			return Promise.reject(err);
 		}
 
-		chatMessages.value = [...res.data, ...chatMessages.value];
-		startKey.value = res.last_evaluated_key;
+		chatMessages.value = res.data.concat(chatMessages.value);
+		startKey.value = res.start_key;
 	};
 
 	const createChatMessage = async (chatMessageData: IChatMessage) => {

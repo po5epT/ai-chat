@@ -90,6 +90,7 @@ const onSubmitMessage = async ({ text, files }: { text: string; files: IChatMess
 };
 
 const onChatScrollTop = async () => {
+	// TODO consider a better way to access container height
 	const heightBefore = messagesListRef.value?.getHeight() ?? 0;
 	const [err] = await flatry(loadChatMessagesMore(chatId.value, 4));
 	const heightAfter = messagesListRef.value?.getHeight() ?? 0;
