@@ -19,6 +19,7 @@
   width: var(--a-secondary-sidebar-width);
   border-right: 1px solid var(--a-sidebar-border-color);
   background: var(--a-sidebar-item-fill-color);
+  overflow: hidden;
   transition: width 0.25s;
 }
 
