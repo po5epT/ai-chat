@@ -4,7 +4,7 @@ import flatry from 'flatry';
 import type { IChat, IChatMessage } from '@/modules/chats/types';
 import type { IStartKey } from '@/services/api';
 import { chatMessagesRepository } from '@/modules/chats/repositories';
-import { QueryParamsService } from '@/services/query';
+import { SearchParamsService } from '@/services/query';
 
 export const useChatMessages = () => {
 	const chatMessages = ref<IChatMessage[]>([]);
@@ -17,15 +17,19 @@ export const useChatMessages = () => {
 	};
 
 	const getMessages = async (chatId: IChat['id'], limit?: number) => {
-		const queryParams = new QueryParamsService(chatId, 'chat_id');
-		const queryString = queryParams.setLimit(limit).setStartKey(startKey.value).toString();
+		const searchParamsService = new SearchParamsService();
+		const searchString = searchParamsService
+			.addParam('chat_id', chatId)
+			.addParam('limit', limit)
+			.addParam('start_key', startKey.value, (value) => encodeURIComponent(JSON.stringify(value)))
+			.toString();
 
 		isMessagesLoading.value = true;
-		const [err, res] = await flatry(chatMessagesRepository.getMessages(queryString));
+		const [err, res] = await flatry(chatMessagesRepository.getMessages(searchString));
 		isMessagesLoading.value = false;
 
 		if (err) {
-			return Promise.reject(err);
+			throw err;
 		}
 
 		res.data.sort((messageA, messageB) => messageA.timestamp - messageB.timestamp);
@@ -37,7 +41,7 @@ export const useChatMessages = () => {
 		const [err, res] = await flatry(getMessages(chatId, limit));
 
 		if (err) {
-			return Promise.reject(err);
+			throw err;
 		}
 
 		chatMessages.value = res.data;
@@ -48,7 +52,7 @@ export const useChatMessages = () => {
 		const [err, res] = await flatry(getMessages(chatId, limit));
 
 		if (err) {
-			return Promise.reject(err);
+			throw err;
 		}
 
 		chatMessages.value = res.data.concat(chatMessages.value);
@@ -59,7 +63,7 @@ export const useChatMessages = () => {
 		const [err, createdChatMessage] = await flatry(chatMessagesRepository.createMessage(chatMessageData));
 
 		if (err) {
-			return Promise.reject(err);
+			throw err;
 		}
 
 		const { requested_message_id, ...restData } = createdChatMessage;
