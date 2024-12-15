@@ -23,7 +23,7 @@
 import { ElIcon } from 'element-plus';
 import { Paperclip } from '@element-plus/icons-vue';
 
-const { multiple } = defineProps<{
+const { multiple = false } = defineProps<{
 	multiple?: boolean;
 }>();
 
