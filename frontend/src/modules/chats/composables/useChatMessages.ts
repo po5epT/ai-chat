@@ -6,6 +6,10 @@ import type { IStartKey } from '@/services/api';
 import { chatMessagesRepository } from '@/modules/chats/repositories';
 import { SearchParamsService } from '@/services/query';
 
+type LoadMessageOptions = {
+	limit?: number | string;
+};
+
 export const useChatMessages = () => {
 	const chatMessages = ref<IChatMessage[]>([]);
 	const isMessagesLoading = ref(false);
@@ -16,7 +20,7 @@ export const useChatMessages = () => {
 		startKey.value = undefined;
 	};
 
-	const getMessages = async (chatId: IChat['id'], limit?: number) => {
+	const getMessages = async (chatId: IChat['id'], { limit }: LoadMessageOptions) => {
 		const searchParamsService = new SearchParamsService();
 		const searchString = searchParamsService
 			.addParam('chat_id', chatId)
@@ -37,19 +41,15 @@ export const useChatMessages = () => {
 		return res;
 	};
 
-	const loadChatMessages = async (chatId: IChat['id'], limit?: number) => {
-		const [err, res] = await flatry(getMessages(chatId, limit));
-
-		if (err) {
-			throw err;
-		}
+	const loadChatMessages = async (chatId: IChat['id'], options: LoadMessageOptions) => {
+		const res = await getMessages(chatId, options);
 
 		chatMessages.value = res.data;
 		startKey.value = res.start_key;
 	};
 
-	const loadChatMessagesMore = async (chatId: IChat['id'], limit?: number) => {
-		const [err, res] = await flatry(getMessages(chatId, limit));
+	const loadChatMessagesMore = async (chatId: IChat['id'], options: LoadMessageOptions) => {
+		const [err, res] = await flatry(getMessages(chatId, options));
 
 		if (err) {
 			throw err;

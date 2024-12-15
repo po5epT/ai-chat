@@ -1,7 +1,8 @@
 <template>
-	<section class="chat">
-		<slot name="chat-top" />
-
+	<section
+		ref="chatRef"
+		class="chat"
+	>
 		<div
 			ref="messagesRef"
 			class="messages"
@@ -30,8 +31,6 @@
 
 			<slot name="generating" />
 		</div>
-
-		<div ref="chatBottomRef"></div>
 	</section>
 </template>
 
@@ -49,7 +48,8 @@ type Props = { messagesList: IChatMessage[] };
 
 const { messagesList } = defineProps<Props>();
 
-const { scroll, jump } = useScroll('chatBottomRef');
+const { scrollToBottom, jumpToBottom, targetRef: chatRef } = useScroll('chatRef');
+const messagesRef = useTemplateRef<HTMLDivElement>('messagesRef');
 
 const groupedMessagesList = computed<Record<string, IChatMessage[]>>(() => {
 	return messagesList.reduce(
@@ -64,21 +64,19 @@ const groupedMessagesList = computed<Record<string, IChatMessage[]>>(() => {
 	);
 });
 
-const messagesRef = useTemplateRef<HTMLDivElement>('messagesRef');
-const getHeight = () => messagesRef.value?.clientHeight;
+const getHeight = () => messagesRef.value?.scrollHeight;
 
-defineExpose({ scroll, jump, getHeight });
+defineExpose({ scrollToBottom, jumpToBottom, getHeight });
 </script>
 
 <style scoped>
 .chat {
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 
 .messages {
 	display: flex;
 	flex-direction: column;
-	overflow-y: auto;
 	padding: 0 var(--a-base-h-padding);
 }
 

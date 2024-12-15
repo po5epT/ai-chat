@@ -19,7 +19,6 @@ export class SearchParamsService {
 	}
 
 	toString() {
-		console.log(this.searchParams);
 		return new URLSearchParams(this.searchParams).toString();
 	}
 }

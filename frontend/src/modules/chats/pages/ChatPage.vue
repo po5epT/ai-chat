@@ -18,9 +18,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
+import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useInfiniteScroll } from '@vueuse/core';
+import flatry from 'flatry';
 
 import type { IChat, IChatMessage, IChatMessageFile } from '@/modules/chats/types';
 import ChatMessagesList from '@/modules/chats/components/chat-messages-list/ChatMessagesList.vue';
@@ -31,7 +32,6 @@ import { useAuthStore } from '@/stores/auth';
 import { errorNotify } from '@/services/notify';
 import { createChatMessageModel } from '@/modules/chats/models';
 import { useChatMessages } from '@/modules/chats/composables/useChatMessages';
-import flatry from 'flatry';
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -51,16 +51,14 @@ watch(
 	chatId,
 	async (newChatId) => {
 		resetChatMessages();
-		const [err] = await flatry(loadChatMessages(newChatId, 4));
+		const [err] = await flatry(loadChatMessages(newChatId, { limit: 4 }));
 
 		if (err) {
 			return errorNotify((err as Error).message ?? err);
 		}
 
 		chatsStore.setCurrentChatById(newChatId);
-
-		await nextTick();
-		messagesListRef.value?.jump();
+		messagesListRef.value?.jumpToBottom();
 	},
 	{ immediate: true },
 );
@@ -74,7 +72,7 @@ const onSubmitMessage = async ({ text, files }: { text: string; files: IChatMess
 	});
 
 	chatMessages.value.push(newChatMessageData);
-	nextTick().then(() => messagesListRef.value?.scroll());
+	messagesListRef.value?.scrollToBottom();
 
 	isSystemGenerating.value = true;
 	const [err] = await flatry(createChatMessage(newChatMessageData));
@@ -84,9 +82,7 @@ const onSubmitMessage = async ({ text, files }: { text: string; files: IChatMess
 		return errorNotify((err as Error).message ?? err);
 	}
 
-	await nextTick();
-
-	messagesListRef.value?.scroll();
+	messagesListRef.value?.scrollToBottom();
 };
 
 const onChatScrollTop = async () => {
