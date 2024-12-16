@@ -31,7 +31,7 @@ import type { IChatMessage } from '@/modules/chats/types';
 
 import ChatMessage from './ChatMessage.vue';
 
-defineProps<{ message: IChatMessage }>();
+const { message = {} } = defineProps<{ message?: Partial<IChatMessage> }>();
 </script>
 
 <style scoped>

@@ -4,14 +4,10 @@ import { createApiError, UnauthorizedError } from '@/services/error';
 export const apiService = createFetchService('/api/v1');
 
 apiService.onRequest((config) => {
-	// console.log('onRequest:config', config);
-
 	return config;
 });
 
-apiService.onResponse((response) => {
-	// console.log('onResponse:response', response);
-});
+apiService.onResponse((response) => {});
 
 apiService.onResponseError((response, data) => {
 	const error = createApiError(data?.api_error ?? response.statusText, response);

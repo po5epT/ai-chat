@@ -8,8 +8,8 @@ type TCreateMessagePayload = Omit<IChatMessage, 'id' | 'user_id' | 'requested_me
 const createChatMessagesRepository = (apiService: IApiService) => {
 	const baseURL = '/messages';
 
-	const getMessages = async (query: string): Promise<IResponse<IChatMessage[]>> => {
-		return apiService.get<IResponse<IChatMessage[]>>(`${baseURL}?${query}`);
+	const getMessages = async (searchString: string): Promise<IResponse<IChatMessage[]>> => {
+		return apiService.get<IResponse<IChatMessage[]>>(`${baseURL}?${searchString}`);
 	};
 
 	const createMessage = async (

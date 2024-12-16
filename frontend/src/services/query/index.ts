@@ -1,1 +1,1 @@
-export * from './QueryParamsService';
+export * from './SearchParamsService';
