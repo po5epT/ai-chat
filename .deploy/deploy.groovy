@@ -17,7 +17,7 @@ pipeline {
            steps {
                 sh 'echo "Creating the necessary directories and clone/pull bcp project"'
                 dir ('./') {
-                    git branch: "main",
+                    git branch: "${params.ai_git_branch}",
                         credentialsId: 'ai_jenkins_git',
                         url: 'git@github.com:InfusemediaTeam/infuse-ai-app.git'
                 }
