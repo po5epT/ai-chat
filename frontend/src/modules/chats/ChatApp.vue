@@ -26,7 +26,10 @@
 				<ChatMenuSkeleton />
 			</template>
 
-			<template v-else-if="chatsStore.hasChats">
+			<div
+				class="chat-list"
+				v-else-if="chatsStore.hasChats"
+			>
 				<ChatMenu
 					v-if="recentChatList.length"
 					:chats-list="recentChatList"
@@ -52,7 +55,7 @@
 						</div>
 					</template>
 				</ChatMenu>
-			</template>
+			</div>
 
 			<div
 				v-if="!chatsStore.hasChats && !chatsStore.isChatsLoading"
@@ -174,5 +177,9 @@ chatsStore.$onAction(({ name, args, after }) => {
 
 .chat-title-text {
 	vertical-align: middle;
+}
+
+.chat-list {
+	overflow-y: auto;
 }
 </style>
