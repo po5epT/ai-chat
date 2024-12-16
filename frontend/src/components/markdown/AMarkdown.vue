@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="chat-message-text"
+		class="markdown-content"
 		v-html="html"
 	></div>
 </template>
@@ -20,13 +20,13 @@ watchEffect(async () => {
 </script>
 
 <style>
-.chat-message-text h1,
-.chat-message-text h2,
-.chat-message-text h3,
-.chat-message-text h4 {
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
 	margin: 10px 0;
 }
-.chat-message-text p {
+.markdown-content p {
 	margin: 10px 0;
 }
 </style>

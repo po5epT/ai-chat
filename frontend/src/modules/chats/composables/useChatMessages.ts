@@ -13,6 +13,7 @@ type LoadMessageOptions = {
 export const useChatMessages = () => {
 	const chatMessages = ref<IChatMessage[]>([]);
 	const isMessagesLoading = ref(false);
+	const isMessageCreating = ref(false);
 	const startKey = ref<IStartKey | null>();
 
 	const resetChatMessages = () => {
@@ -60,7 +61,9 @@ export const useChatMessages = () => {
 	};
 
 	const createChatMessage = async (chatMessageData: IChatMessage) => {
+		isMessageCreating.value = true;
 		const [err, createdChatMessage] = await flatry(chatMessagesRepository.createMessage(chatMessageData));
+		isMessageCreating.value = false;
 
 		if (err) {
 			throw err;
@@ -82,6 +85,7 @@ export const useChatMessages = () => {
 		loadChatMessages,
 		loadChatMessagesMore,
 		createChatMessage,
+		isMessageCreating,
 		resetChatMessages,
 	};
 };

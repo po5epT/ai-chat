@@ -6,7 +6,7 @@ export const useScroll = (key: string) => {
 	const scrollTo = (options?: ScrollOptions) => {
 		setTimeout(() => {
 			targetRef.value?.scrollTo({ ...options, behavior: 'smooth' });
-		}, 0);
+		});
 	};
 
 	const jumpTo = (options?: ScrollOptions) => {
@@ -16,11 +16,11 @@ export const useScroll = (key: string) => {
 	};
 
 	const jumpToBottom = () => {
-		jumpTo({ top: targetRef.value?.scrollHeight } as ScrollOptions);
+		jumpTo({ top: 999999 } as ScrollOptions);
 	};
 
 	const scrollToBottom = () => {
-		scrollTo({ top: targetRef.value?.scrollHeight } as ScrollOptions);
+		scrollTo({ top: 999999 } as ScrollOptions);
 	};
 
 	return {

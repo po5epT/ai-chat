@@ -1,15 +1,16 @@
 <template>
-	<ChatMessagesList
-		ref="messagesListRef"
-		:messages-list="chatMessages"
+	<div
+		ref="chatMessagesRef"
+		class="chat-messages"
 	>
-		<template #generating>
-			<ChatSystemMessage
-				v-if="isSystemGenerating"
-				:message="emptyChatSystemMessage"
-			/>
-		</template>
-	</ChatMessagesList>
+		<div ref="chatMessagesInnerRef">
+			<ChatMessagesList :messages-list="chatMessages">
+				<template #generating>
+					<ChatSystemMessage v-if="isMessageCreating" />
+				</template>
+			</ChatMessagesList>
+		</div>
+	</div>
 
 	<ChatForm
 		is-files-allowed
@@ -18,12 +19,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useTemplateRef, watch } from 'vue';
+import { computed, useTemplateRef, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useInfiniteScroll } from '@vueuse/core';
 import flatry from 'flatry';
 
-import type { IChat, IChatMessage, IChatMessageFile } from '@/modules/chats/types';
+import type { IChat, IChatMessageFile } from '@/modules/chats/types';
 import ChatMessagesList from '@/modules/chats/components/chat-messages-list/ChatMessagesList.vue';
 import ChatSystemMessage from '@/modules/chats/components/chat-message/ChatSystemMessage.vue';
 import ChatForm from '@/modules/chats/components/chat-form/ChatForm.vue';
@@ -32,33 +33,37 @@ import { useAuthStore } from '@/stores/auth';
 import { errorNotify } from '@/services/notify';
 import { createChatMessageModel } from '@/modules/chats/models';
 import { useChatMessages } from '@/modules/chats/composables/useChatMessages';
+import { useScroll } from '@/composables/useScroll';
 
 const route = useRoute();
 const authStore = useAuthStore();
 const chatsStore = useChatsStore();
 const chatId = computed<IChat['id']>(() => route.params.id as IChat['id']);
 
-const { chatMessages, startKey, loadChatMessages, loadChatMessagesMore, createChatMessage, resetChatMessages } =
-	useChatMessages();
-
-const messagesListRef = useTemplateRef<InstanceType<typeof ChatMessagesList>>('messagesListRef');
-const messagesListElement = computed<HTMLElement>(() => messagesListRef.value?.$el);
-
-const isSystemGenerating = ref(false);
-const emptyChatSystemMessage = {} as IChatMessage;
+const { scrollToBottom, jumpToBottom, jumpTo, targetRef: chatMessagesRef } = useScroll('chatMessagesRef');
+const {
+	chatMessages,
+	startKey,
+	isMessagesLoading,
+	loadChatMessages,
+	loadChatMessagesMore,
+	createChatMessage,
+	isMessageCreating,
+	resetChatMessages,
+} = useChatMessages();
 
 watch(
 	chatId,
 	async (newChatId) => {
 		resetChatMessages();
-		const [err] = await flatry(loadChatMessages(newChatId, { limit: 4 }));
+		const [err] = await flatry(loadChatMessages(newChatId, { limit: 6 }));
 
 		if (err) {
 			return errorNotify((err as Error).message ?? err);
 		}
 
 		chatsStore.setCurrentChatById(newChatId);
-		messagesListRef.value?.jumpToBottom();
+		jumpToBottom();
 	},
 	{ immediate: true },
 );
@@ -72,36 +77,40 @@ const onSubmitMessage = async ({ text, files }: { text: string; files: IChatMess
 	});
 
 	chatMessages.value.push(newChatMessageData);
-	messagesListRef.value?.scrollToBottom();
+	scrollToBottom();
 
-	isSystemGenerating.value = true;
 	const [err] = await flatry(createChatMessage(newChatMessageData));
-	isSystemGenerating.value = false;
 
 	if (err) {
 		return errorNotify((err as Error).message ?? err);
 	}
 
-	messagesListRef.value?.scrollToBottom();
+	scrollToBottom();
 };
 
+const chatMessagesInnerRef = useTemplateRef<HTMLDivElement>('chatMessagesInnerRef');
 const onChatScrollTop = async () => {
-	// TODO consider a better way to access container height
-	const heightBefore = messagesListRef.value?.getHeight() ?? 0;
-	const [err] = await flatry(loadChatMessagesMore(chatId.value, 4));
-	const heightAfter = messagesListRef.value?.getHeight() ?? 0;
+	const heightBefore = chatMessagesInnerRef.value?.clientHeight ?? 0;
+	const [err] = await flatry(loadChatMessagesMore(chatId.value, { limit: 4 }));
+	const heightAfter = chatMessagesInnerRef.value?.clientHeight ?? 0;
 
 	if (err) {
 		return errorNotify((err as Error).message ?? err);
 	}
 
-	messagesListElement.value.scrollTo(0, heightAfter - heightBefore);
+	jumpTo({ top: heightAfter - heightBefore } as ScrollOptions);
 };
 
-useInfiniteScroll(messagesListElement, onChatScrollTop, {
+useInfiniteScroll(chatMessagesRef, onChatScrollTop, {
 	distance: 10,
 	direction: 'top',
-	interval: 300,
-	canLoadMore: () => !!startKey.value,
+	interval: 700,
+	canLoadMore: () => !!startKey.value && !isMessagesLoading.value,
 });
 </script>
+
+<style scoped>
+.chat-messages {
+	overflow-y: auto;
+}
+</style>

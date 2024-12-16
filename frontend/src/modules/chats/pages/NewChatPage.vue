@@ -1,25 +1,21 @@
 <template>
-	<ChatMessagesList
-		ref="messagesListRef"
-		:messages-list="chatMessages"
-	>
-		<template #generating>
-			<ChatSystemMessage
-				v-if="isSystemGenerating"
-				:message="emptyChatSystemMessage"
-			/>
-		</template>
-	</ChatMessagesList>
+	<div class="chat-messages">
+		<div>
+			<ChatMessagesList :messages-list="chatMessages">
+				<template #generating>
+					<ChatSystemMessage v-if="isMessageCreating" />
+				</template>
+			</ChatMessagesList>
+		</div>
+	</div>
 
 	<ChatForm @submit:message="onSubmitMessage" />
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import flatry from 'flatry';
 
-import type { IChatMessage } from '@/modules/chats/types';
 import ChatMessagesList from '@/modules/chats/components/chat-messages-list/ChatMessagesList.vue';
 import ChatSystemMessage from '@/modules/chats/components/chat-message/ChatSystemMessage.vue';
 import ChatForm from '@/modules/chats/components/chat-form/ChatForm.vue';
@@ -35,12 +31,9 @@ const authStore = useAuthStore();
 const chatsStore = useChatsStore();
 chatsStore.resetCurrentChat();
 
-const { chatMessages, createChatMessage } = useChatMessages();
+const { chatMessages, isMessageCreating, createChatMessage } = useChatMessages();
 
 chatMessages.value.push(createFirstSystemChatMessageModel());
-
-const isSystemGenerating = ref(false);
-const emptyChatSystemMessage = {} as IChatMessage;
 
 const onSubmitMessage = async ({ text = '' }: { text: string }) => {
 	const newChatData = createNewChatModel({ first_prompt: text });
@@ -60,9 +53,7 @@ const onSubmitMessage = async ({ text = '' }: { text: string }) => {
 
 	newChatMessageData.chat_id = chat.id;
 
-	isSystemGenerating.value = true;
 	const [messageErr] = await flatry(createChatMessage(newChatMessageData));
-	isSystemGenerating.value = false;
 
 	if (messageErr) {
 		errorNotify((messageErr as Error).message ?? messageErr);
@@ -74,3 +65,9 @@ const onSubmitMessage = async ({ text = '' }: { text: string }) => {
 	return router.push({ name: 'chat', params: { id: chat.id } });
 };
 </script>
+
+<style scoped>
+.chat-messages {
+	overflow-y: auto;
+}
+</style>
