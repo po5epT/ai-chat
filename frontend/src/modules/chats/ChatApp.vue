@@ -67,7 +67,7 @@
 			</div>
 		</template>
 
-		<main class="content">
+		<main class="content content_chat">
 			<RouterView />
 		</main>
 	</LayoutPage>
@@ -181,5 +181,10 @@ chatsStore.$onAction(({ name, args, after }) => {
 
 .chat-list {
 	overflow-y: auto;
+}
+
+.content_chat {
+	max-width: 1440px;
+	margin: auto;
 }
 </style>
