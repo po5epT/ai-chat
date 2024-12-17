@@ -184,6 +184,7 @@ chatsStore.$onAction(({ name, args, after }) => {
 }
 
 .content_chat {
+	width: 100%;
 	max-width: 1440px;
 	margin: auto;
 }
