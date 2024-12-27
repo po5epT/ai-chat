@@ -18,12 +18,12 @@ export default defineConfig({
 		port: 5173,
 		proxy: {
 			'/api/v1': {
-				target: 'https://p1oq5lij1c.execute-api.eu-central-1.amazonaws.com',
+				target: '',
 				changeOrigin: true,
 			},
 
 			'/auth': {
-				target: 'https://p1oq5lij1c.execute-api.eu-central-1.amazonaws.com',
+				target: '',
 				changeOrigin: true,
 			},
 		},
