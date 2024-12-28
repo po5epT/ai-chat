@@ -22,12 +22,14 @@ export const useAuthStore = defineStore('auth', () => {
 			const [err, isValid] = await flatry(authRepository.validate(true));
 
 			if (err) {
+				clearUser();
 				throw err;
 			}
 
 			// TODO consider possibility to get error text from server
 			if (!isValid) {
-				throw new Error('Session validation failed.<br /> Please log in');
+				clearUser();
+				throw new Error('Session validation failed. Please log in');
 			}
 		}
 	};

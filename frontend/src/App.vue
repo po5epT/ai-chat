@@ -16,7 +16,7 @@ const router = useRouter();
 const authStore = useAuthStore();
 
 authStore.authorize().catch((err: Error) => {
-	errorNotify(err.message ?? err, { dangerouslyUseHTMLString: true });
+	errorNotify(err.message ?? String(err));
 
 	return router.push({ name: 'logout' });
 });

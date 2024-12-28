@@ -1,4 +1,6 @@
 import { createFetchService } from '@/services/api/fetchService';
+import router from '@/router';
+import { useAuthStore } from '@/stores/auth';
 import { createApiError, UnauthorizedError } from '@/services/error';
 
 export const apiService = createFetchService('/api/v1');
@@ -14,6 +16,8 @@ apiService.onResponseError((response, data) => {
 
 	if (error instanceof UnauthorizedError) {
 		console.error(error);
+		useAuthStore().clearUser();
+		router.push({ name: 'login' });
 	}
 
 	throw error;
