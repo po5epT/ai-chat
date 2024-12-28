@@ -38,6 +38,20 @@ export class FetchService implements IApiService {
 		this.responseErrorCallback = callback;
 	}
 
+	private async parseBody(response: Response): Promise<any> {
+		const text = await response.text();
+
+		if (!text) {
+			return undefined;
+		}
+
+		try {
+			return JSON.parse(text);
+		} catch {
+			return undefined;
+		}
+	}
+
 	private transformBody(data: any, config: RequestInit) {
 		if ((config.headers as any)?.['Content-Type'] === 'application/json') {
 			return JSON.stringify(data);
@@ -55,10 +69,10 @@ export class FetchService implements IApiService {
 
 		const response = await fetch(`${this.baseURL}${url}`, requestConfig);
 		this.responseCallback(response);
-		const jsonResponse = await response.json();
+		const jsonResponse = await this.parseBody(response);
 
 		if (!response.ok && typeof this.responseErrorCallback === 'function') {
-			this.responseErrorCallback(response);
+			this.responseErrorCallback(response, jsonResponse);
 		}
 
 		return jsonResponse;
@@ -76,7 +90,7 @@ export class FetchService implements IApiService {
 
 		const response = await fetch(`${this.baseURL}${url}`, requestConfig);
 		this.responseCallback(response);
-		const jsonResponse = await response.json();
+		const jsonResponse = await this.parseBody(response);
 
 		if (!response.ok && typeof this.responseErrorCallback === 'function') {
 			this.responseErrorCallback(response, jsonResponse);
@@ -97,7 +111,7 @@ export class FetchService implements IApiService {
 
 		const response = await fetch(`${this.baseURL}${url}`, requestConfig);
 		this.responseCallback(response);
-		const jsonResponse = await response.json();
+		const jsonResponse = await this.parseBody(response);
 
 		if (!response.ok && typeof this.responseErrorCallback === 'function') {
 			this.responseErrorCallback(response, jsonResponse);
@@ -118,7 +132,7 @@ export class FetchService implements IApiService {
 
 		const response = await fetch(`${this.baseURL}${url}`, requestConfig);
 		this.responseCallback(response);
-		const jsonResponse = await response.json();
+		const jsonResponse = await this.parseBody(response);
 
 		if (!response.ok && typeof this.responseErrorCallback === 'function') {
 			this.responseErrorCallback(response, jsonResponse);
@@ -138,10 +152,10 @@ export class FetchService implements IApiService {
 
 		const response = await fetch(`${this.baseURL}${url}`, requestConfig);
 		this.responseCallback(response);
-		const jsonResponse = await response.json();
+		const jsonResponse = await this.parseBody(response);
 
 		if (!response.ok && typeof this.responseErrorCallback === 'function') {
-			this.responseErrorCallback(response);
+			this.responseErrorCallback(response, jsonResponse);
 		}
 
 		return jsonResponse;
