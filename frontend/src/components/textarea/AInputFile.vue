@@ -1,10 +1,6 @@
 <template>
-	<label
-		class="ai-input-file"
-		for="file"
-	>
+	<label class="ai-input-file">
 		<input
-			id="file"
 			type="file"
 			:multiple="multiple"
 			style="display: none"
@@ -33,6 +29,8 @@ const emit = defineEmits<{
 
 const onChange = (event: Event) => {
 	emit('change', event);
+
+	(event.target as HTMLInputElement).value = '';
 };
 </script>
 

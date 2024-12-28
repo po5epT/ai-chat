@@ -58,7 +58,6 @@ watch(
 		resetChatMessages();
 		const [err] = await flatry(loadChatMessages(newChatId, { limit: 6 }));
 
-		// the route has changed while the messages were loading
 		if (newChatId !== chatId.value) {
 			return;
 		}
