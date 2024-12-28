@@ -6,17 +6,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue';
+import { computed } from 'vue';
 import { markdownParse } from '@/services/markdown';
 
 type Props = { source?: string };
 
 const { source = '' } = defineProps<Props>();
-const html = ref('');
-
-watchEffect(async () => {
-	html.value = await markdownParse(source);
-});
+const html = computed(() => markdownParse(source));
 </script>
 
 <style>

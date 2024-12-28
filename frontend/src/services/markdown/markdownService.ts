@@ -1,8 +1,11 @@
 import { Marked, type MarkedOptions } from 'marked';
+import DOMPurify from 'dompurify';
 
-export const markdownParse = async (markdownString: string, options?: MarkedOptions): Promise<string> => {
+export const markdownParse = (markdownString: string, options?: MarkedOptions): string => {
 	const marked = new Marked();
-	marked.setOptions({ async: true, breaks: true, ...options });
+	marked.setOptions({ breaks: true, ...options, async: false });
 
-	return marked.parse(markdownString);
+	const html = marked.parse(markdownString) as string;
+
+	return DOMPurify.sanitize(html);
 };
