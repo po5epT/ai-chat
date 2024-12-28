@@ -2,7 +2,6 @@ import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import flatry from 'flatry';
 
-import type { ILastEvaluatedKey } from '@/services/api';
 import type { IChat } from '@/modules/chats/types';
 import { chatsRepository } from '@/modules/chats/repositories';
 
@@ -13,8 +12,6 @@ export const useChatsStore = defineStore('chats', () => {
 	const mapChatIdToChat = computed(() => {
 		return Object.fromEntries(chatList.value.map((chat) => [chat.id, chat]));
 	});
-
-	let lastEvaluatedKey: ILastEvaluatedKey | undefined;
 
 	const isChatsLoading = ref(false);
 	const loadChats = async () => {
@@ -31,7 +28,6 @@ export const useChatsStore = defineStore('chats', () => {
 		}
 
 		chatList.value = res.data;
-		lastEvaluatedKey = res.last_evaluated_key;
 		isChatsLoaded.value = true;
 	};
 
@@ -48,7 +44,7 @@ export const useChatsStore = defineStore('chats', () => {
 			return chat;
 		});
 
-		if (chatToUpdate.name === currentChatName.value) {
+		if (chatToUpdate.id === currentChatId.value) {
 			setCurrentChatById(chatToUpdate.id);
 		}
 	};

@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, useTemplateRef, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useInfiniteScroll } from '@vueuse/core';
 import flatry from 'flatry';
@@ -58,11 +58,18 @@ watch(
 		resetChatMessages();
 		const [err] = await flatry(loadChatMessages(newChatId, { limit: 6 }));
 
+		// the route has changed while the messages were loading
+		if (newChatId !== chatId.value) {
+			return;
+		}
+
+		chatsStore.setCurrentChatById(newChatId);
+
 		if (err) {
 			return errorNotify((err as Error).message ?? err);
 		}
 
-		chatsStore.setCurrentChatById(newChatId);
+		await nextTick();
 		jumpToBottom();
 	},
 	{ immediate: true },
@@ -70,6 +77,7 @@ watch(
 
 const onSubmitMessage = async ({ text, files }: { text: string; files: IChatMessageFile[] }) => {
 	const newChatMessageData = createChatMessageModel({
+		id: crypto.randomUUID(),
 		chat_id: chatId.value,
 		user_id: authStore.userId!,
 		text,
@@ -90,8 +98,15 @@ const onSubmitMessage = async ({ text, files }: { text: string; files: IChatMess
 
 const chatMessagesInnerRef = useTemplateRef<HTMLDivElement>('chatMessagesInnerRef');
 const onChatScrollTop = async () => {
+	const requestedChatId = chatId.value;
 	const heightBefore = chatMessagesInnerRef.value?.clientHeight ?? 0;
-	const [err] = await flatry(loadChatMessagesMore(chatId.value, { limit: 4 }));
+	const [err] = await flatry(loadChatMessagesMore(requestedChatId, { limit: 4 }));
+
+	if (requestedChatId !== chatId.value) {
+		return;
+	}
+
+	await nextTick();
 	const heightAfter = chatMessagesInnerRef.value?.clientHeight ?? 0;
 
 	if (err) {

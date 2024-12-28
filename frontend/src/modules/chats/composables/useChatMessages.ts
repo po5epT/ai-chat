@@ -16,7 +16,11 @@ export const useChatMessages = () => {
 	const isMessageCreating = ref(false);
 	const startKey = ref<IStartKey | null>();
 
+	// bumped on every reset so responses of a previously opened chat are dropped
+	let generation = 0;
+
 	const resetChatMessages = () => {
+		generation++;
 		chatMessages.value = [];
 		startKey.value = undefined;
 	};
@@ -26,12 +30,18 @@ export const useChatMessages = () => {
 		const searchString = searchParamsService
 			.addParam('chat_id', chatId)
 			.addParam('limit', limit)
-			.addParam('start_key', startKey.value, (value) => encodeURIComponent(JSON.stringify(value)))
+			.addParam('start_key', startKey.value, (value) => JSON.stringify(value))
 			.toString();
+
+		const requestGeneration = generation;
 
 		isMessagesLoading.value = true;
 		const [err, res] = await flatry(chatMessagesRepository.getMessages(searchString));
 		isMessagesLoading.value = false;
+
+		if (requestGeneration !== generation) {
+			return null;
+		}
 
 		if (err) {
 			throw err;
@@ -45,6 +55,10 @@ export const useChatMessages = () => {
 	const loadChatMessages = async (chatId: IChat['id'], options: LoadMessageOptions) => {
 		const res = await getMessages(chatId, options);
 
+		if (!res) {
+			return;
+		}
+
 		chatMessages.value = res.data;
 		startKey.value = res.start_key;
 	};
@@ -56,26 +70,40 @@ export const useChatMessages = () => {
 			throw err;
 		}
 
+		if (!res) {
+			return;
+		}
+
 		chatMessages.value = res.data.concat(chatMessages.value);
 		startKey.value = res.start_key;
 	};
 
 	const createChatMessage = async (chatMessageData: IChatMessage) => {
+		const optimisticId = chatMessageData.id;
+		const findOptimisticIndex = () => chatMessages.value.findIndex((message) => message.id === optimisticId);
+
 		isMessageCreating.value = true;
 		const [err, createdChatMessage] = await flatry(chatMessagesRepository.createMessage(chatMessageData));
 		isMessageCreating.value = false;
 
+		const index = findOptimisticIndex();
+
 		if (err) {
+			if (index !== -1) {
+				chatMessages.value.splice(index, 1);
+			}
+
 			throw err;
+		}
+
+		// the chat was switched while the request was pending
+		if (index === -1) {
+			return;
 		}
 
 		const { requested_message_id, ...restData } = createdChatMessage;
 
-		chatMessageData.id = requested_message_id;
-
-		chatMessages.value.pop();
-		chatMessages.value.push(chatMessageData);
-		chatMessages.value.push(restData);
+		chatMessages.value.splice(index, 1, { ...chatMessageData, id: requested_message_id }, restData);
 	};
 
 	return {
